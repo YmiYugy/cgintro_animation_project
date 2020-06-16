@@ -10,12 +10,14 @@
 #include "Helper.h"
 
 struct RenderNode {
-    GLuint VBO;
     GLuint EBO;
     GLuint program;
     GLuint VAO;
+    std::vector<void*> UBOs;
 
-    RenderNode(GLuint VBO, GLuint EBO, GLuint program, const std::vector<VertexInput>& vertexInputs);
+    RenderNode(GLuint EBO, GLuint program, std::vector<void*> UBOs, const std::vector<VertexInput>& vertexInputs);
+    virtual void render() = delete;
+    virtual void updateUBOs() = delete;
 };
 
 

@@ -8,6 +8,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <map>
+#include <memory>
 #include "RenderNode.h"
 
 class Application {
@@ -22,7 +23,7 @@ private:
     std::map<std::string, GLuint> vertexBuffers;
     std::map<std::string, GLuint> elementBuffers;
     std::map<std::string, GLuint> shaders;
-    std::map<std::string, RenderNode> nodes;
+    std::map<std::string, std::shared_ptr<RenderNode>> nodes;
 
     Application();
     ~Application();

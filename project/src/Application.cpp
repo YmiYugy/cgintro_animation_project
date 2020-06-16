@@ -7,6 +7,7 @@
 #include <fstream>
 #include "Application.h"
 #include "Helper.h"
+#include "Boids.h"
 
 float vertices[] = {
         0.5f,  0.5f, 0.0f,  // top right
@@ -94,8 +95,8 @@ void Application::render() {
     glClear(GL_COLOR_BUFFER_BIT);
     for(auto& node_pair : nodes) {
         auto node = node_pair.second;
-        glUseProgram(node.program);
-        glBindVertexArray(node.VAO);
+        glUseProgram(node->program);
+        glBindVertexArray(node->VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
     }
@@ -122,9 +123,14 @@ void Application::createNodes() {
             .size=3,
             .type=GL_FLOAT,
             .stride=3*sizeof(float),
+            .VBO = vertexBuffers["main"],
+            .instanced = false
     }};
-    RenderNode node(vertexBuffers["main"], elementBuffers["main"], shaders["main"], input);
-    nodes.insert(std::make_pair("main", node));
+
+    GL_FLOAT_MAT4
+
+    Boids node(elementBuffers["main"], shaders["main"], {}, input);
+    nodes.insert(std::make_pair("main", std::make_shared<RenderNode>(node)));
 }
 
 

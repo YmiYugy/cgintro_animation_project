@@ -14,6 +14,8 @@ struct VertexInput {
     GLint size;
     GLenum type;
     GLsizei stride;
+    GLuint VBO;
+    bool instanced;
 };
 
 std::vector<unsigned char> loadFile(const std::string& path);
