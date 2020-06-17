@@ -105,7 +105,7 @@ void Application::render() {
 
 void Application::loadScene() {
     vertexBuffers["main"] = createBufferWithData(GL_ARRAY_BUFFER, vertices, sizeof(vertices), GL_STATIC_DRAW);
-    vertexBuffers["boid_positions"] = createBufferWithData(GL_ARRAY_BUFFER, nullptr, sizeof(glm::mat4),
+    vertexBuffers["boid_positions"] = createBufferWithData(GL_ARRAY_BUFFER, nullptr, 5 * sizeof(glm::mat4),
                                                            GL_DYNAMIC_DRAW);
     elementBuffers["main"] = createBufferWithData(GL_ELEMENT_ARRAY_BUFFER, indices, sizeof(indices), GL_STATIC_DRAW);
 }
@@ -169,6 +169,6 @@ void Application::createNodes() {
             },
     };
 
-    Boids node(elementBuffers["main"], shaders["main"], {}, input, 6, 1);
+    Boids node(elementBuffers["main"], shaders["main"], {}, input, 6, 5);
     nodes.insert(std::make_pair("main", std::make_shared<Boids>(node)));
 }
