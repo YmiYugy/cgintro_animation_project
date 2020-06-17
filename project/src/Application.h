@@ -5,8 +5,11 @@
 #ifndef UNDERWATER_WORLD_APPLICATION_H
 #define UNDERWATER_WORLD_APPLICATION_H
 
-#include "Helper.h"
-#include "Boids.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <map>
+#include <memory>
+#include "RenderNode.h"
 
 class Application {
 public:

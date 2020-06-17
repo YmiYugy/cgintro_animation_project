@@ -5,7 +5,6 @@
 #ifndef UNDERWATER_WORLD_BOIDS_H
 #define UNDERWATER_WORLD_BOIDS_H
 
-#include "Helper.h"
 #include "RenderNode.h"
 
 struct Boids : public RenderNode {
