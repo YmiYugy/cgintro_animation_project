@@ -27,7 +27,7 @@ void Boids::updateUBOs()
 
     glUseProgram(program);
     GLint projLoc = glGetUniformLocation(program, "projection");
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(modelView));
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
     glBindBuffer(GL_ARRAY_BUFFER, positions);
     void* ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
