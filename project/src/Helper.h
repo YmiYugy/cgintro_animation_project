@@ -9,21 +9,20 @@
 #include <glad/glad.h>
 #include <vector>
 
-struct VertexInput {
+struct VertexInput
+{
     GLuint location;
     GLint size;
     GLenum type;
     GLsizei stride;
     GLuint VBO;
+    GLuint offset;
     bool instanced;
 };
 
-std::vector<unsigned char> loadFile(const std::string& path);
+std::vector<unsigned char> loadFile(const std::string &path);
 GLuint createBufferWithData(GLenum target, void *data, size_t size, GLenum usage);
 GLint compileShader(std::vector<unsigned char> source, GLenum type);
-GLuint linkShader(std::vector<GLuint>& shaders);
-
-
-
+GLuint linkShader(std::vector<GLuint> &shaders);
 
 #endif //UNDERWATER_WORLD_HELPER_H

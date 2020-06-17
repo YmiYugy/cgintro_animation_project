@@ -9,16 +9,16 @@
 #include <vector>
 #include "Helper.h"
 
-struct RenderNode {
+struct RenderNode
+{
     GLuint EBO;
     GLuint program;
     GLuint VAO;
-    std::vector<void*> UBOs;
+    std::vector<void *> UBOs;
 
-    RenderNode(GLuint EBO, GLuint program, std::vector<void*> UBOs, const std::vector<VertexInput>& vertexInputs);
-    virtual void render() = delete;
-    virtual void updateUBOs() = delete;
+    RenderNode(GLuint EBO, GLuint program, std::vector<void *> UBOs, const std::vector<VertexInput> &vertexInputs);
+    virtual void render() {}
+    virtual void updateUBOs() {}
 };
-
 
 #endif //UNDERWATER_WORLD_RENDERNODE_H
