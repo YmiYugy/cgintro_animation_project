@@ -5,9 +5,17 @@
 #ifndef UNDERWATER_WORLD_HELPER_H
 #define UNDERWATER_WORLD_HELPER_H
 
-#include <string>
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <string>
 #include <vector>
+#include <fstream>
+#include <stdexcept>
+#include <map>
+#include <memory>
 
 struct VertexInput
 {

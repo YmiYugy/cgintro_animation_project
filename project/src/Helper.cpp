@@ -2,7 +2,7 @@
 // Created by trist on 15/06/2020.
 //
 
-#include <fstream>
+
 #include "Helper.h"
 
 GLint compileShader(std::vector<unsigned char> source, GLenum type)

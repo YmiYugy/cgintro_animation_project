@@ -5,8 +5,6 @@
 #ifndef UNDERWATER_WORLD_RENDERNODE_H
 #define UNDERWATER_WORLD_RENDERNODE_H
 
-#include <glad/glad.h>
-#include <vector>
 #include "Helper.h"
 
 struct RenderNode
