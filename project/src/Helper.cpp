@@ -14,35 +14,30 @@ GLuint compileShader(std::vector<unsigned char> source, GLenum type) {
     GLint success;
     GLchar infoLog[512];
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
+    if (!success) {
         glGetShaderInfoLog(shader, 512, nullptr, infoLog);
         throw std::runtime_error(infoLog);
     }
     return shader;
 }
 
-GLuint linkShader(std::vector<GLuint> &shaders)
-{
+GLuint linkShader(std::vector<GLuint> &shaders) {
     GLuint shaderProgram = glCreateProgram();
-    for (auto &shader : shaders)
-    {
+    for (auto &shader : shaders) {
         glAttachShader(shaderProgram, shader);
     }
     glLinkProgram(shaderProgram);
     GLint success;
     GLchar infoLog[512];
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success)
-    {
+    if (!success) {
         glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
         throw std::runtime_error(infoLog);
     }
     return shaderProgram;
 }
 
-GLuint createBufferWithData(GLenum target, void *data, size_t size, GLenum usage)
-{
+GLuint createBufferWithData(GLenum target, void *data, size_t size, GLenum usage) {
     GLuint VBO;
     glGenBuffers(1, &VBO);
     glBindBuffer(target, VBO);
@@ -96,4 +91,27 @@ std::vector<glm::vec4> generate_sphere_cloud() {
     }
 
     return points;
+}
+
+std::pair<std::vector<GLuint>, std::vector<glm::vec4>> generateCube() {
+    std::vector<glm::vec4> vertices = {
+            glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
+            glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
+            glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),
+            glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
+            glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
+            glm::vec4(1.0f, 0.0f, 1.0f, 1.0f),
+            glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+            glm::vec4(0.0f, 1.0f, 1.0f, 1.0f),
+    };
+    std::vector<GLuint> indices = {
+            1, 0, 3, 1, 3, 2, // bottom face
+            4, 5, 6, 4, 6, 7, // top face
+            4, 0, 1, 4, 1, 5, // left face
+            6, 2, 3, 6, 3, 7, // right face
+            5, 1, 2, 5, 2, 6, // front face
+            7, 3, 0, 7, 0, 4, // back face
+    };
+
+    return std::make_pair(indices, vertices);
 }

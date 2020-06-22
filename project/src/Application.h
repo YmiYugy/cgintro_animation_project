@@ -10,7 +10,8 @@
 #include "Boids.h"
 #include "RenderNode.h"
 #include "Camera.h"
-#include <SphereCloud.h>
+#include "SphereCloud.h"
+#include "SimpleMesh.h"
 
 class Application {
 public:
@@ -23,7 +24,7 @@ public:
     void operator=(Application const &) = delete;
 
 private:
-    const int BOID_NUM = 64 * 10;
+    const int BOID_NUM = 64;
     GLFWwindow *window;
     std::map<std::string, GLuint> vertexBuffers;
     std::map<std::string, GLuint> elementBuffers;
@@ -31,6 +32,7 @@ private:
     std::map<std::string, std::shared_ptr<RenderNode>> nodes;
     glm::mat4 projection;
     Camera camera;
+    glm::mat4 cubeModel;
     bool firstMouse = false;
     float lastX = 1200 / 2;
     float lastY = 1000 / 2;
@@ -63,7 +65,6 @@ private:
 
     void render();
 };
-
 
 
 #endif //UNDERWATER_WORLD_APPLICATION_H

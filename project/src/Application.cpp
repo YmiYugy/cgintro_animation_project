@@ -6,10 +6,10 @@
 #include "Application.h"
 
 float vertices[] = {
-        0.05f, 0.05f, 0.0f,   // top right
-        0.05f, -0.05f, 0.0f,  // bottom right
-        -0.05f, -0.05f, 0.0f, // bottom left
-        -0.05f, 0.05f, 0.0f   // top left
+        0.05f, 0.05f, 0.0f, 1.0f,   // top right
+        0.05f, -0.05f, 0.0f, 1.0f,  // bottom right
+        -0.05f, -0.05f, 0.0f, 1.0f, // bottom left
+        -0.05f, 0.05f, 0.0f, 1.0f,   // top left
 };
 
 unsigned int indices[] = {
@@ -102,13 +102,12 @@ void Application::setupGL() {
     glViewport(0, 0, width, height);
     projection = glm::perspective(glm::radians(90.0f), static_cast<float>(width) / static_cast<float>(height), 0.001f,
                                   1000.0f);
-    camera = Camera(glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 180);
+    camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90);
 }
 
 void Application::render() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
     for (auto &node_pair : nodes) {
         node_pair.second->updateUBOs(deltaTime);
         node_pair.second->render();
@@ -122,8 +121,15 @@ void Application::loadScene() {
     elementBuffers["main"] = createBufferWithData(GL_ELEMENT_ARRAY_BUFFER, indices, sizeof(indices), GL_STATIC_DRAW);
 
     auto sphere_cloud = generate_sphere_cloud();
-    vertexBuffers["sphere_cloud"] = createBufferWithData(GL_ARRAY_BUFFER, sphere_cloud.data(), sizeof(glm::vec4) * 1000,
+    vertexBuffers["sphere_cloud"] = createBufferWithData(GL_ARRAY_BUFFER, sphere_cloud.data(),
+                                                         sizeof(glm::vec4) * sphere_cloud.size(),
                                                          GL_STATIC_DRAW);
+
+    auto cube = generateCube();
+    elementBuffers["cube"] = createBufferWithData(GL_ARRAY_BUFFER, cube.first.data(),
+                                                  sizeof(GLuint) * cube.first.size(), GL_STATIC_DRAW);
+    vertexBuffers["cube"] = createBufferWithData(GL_ARRAY_BUFFER, cube.second.data(),
+                                                 sizeof(glm::vec4) * cube.second.size(), GL_STATIC_DRAW);
 }
 
 void Application::loadShaders() {
@@ -131,12 +137,17 @@ void Application::loadShaders() {
     GLuint fsh = compileShader(loadFile("assets/shaders/main.frag"), GL_FRAGMENT_SHADER);
     std::vector<GLuint> boids = {boids_vsh, fsh};
     GLuint boid_program = linkShader(boids);
-    shaders["main"] = boid_program;
+    shaders["boids"] = boid_program;
 
     GLuint sphere_cloud_vsh = compileShader(loadFile("assets/shaders/sphere_cloud.vert"), GL_VERTEX_SHADER);
     std::vector<GLuint> sphere_cloud = {sphere_cloud_vsh, fsh};
     shaders["sphere_cloud"] = linkShader(sphere_cloud);
 
+    GLuint main_vsh = compileShader(loadFile("assets/shaders/main.vert"), GL_VERTEX_SHADER);
+    std::vector<GLuint> main = {main_vsh, fsh};
+    shaders["main"] = linkShader(main);
+
+    glDeleteShader(main_vsh);
     glDeleteShader(sphere_cloud_vsh);
     glDeleteShader(boids_vsh);
     glDeleteShader(fsh);
@@ -146,9 +157,9 @@ void Application::createNodes() {
     std::vector<VertexInput> input_boids = {
             {
                     .location = 0,
-                    .size = 3,
+                    .size = 4,
                     .type = GL_FLOAT,
-                    .stride = 3 * sizeof(GLfloat),
+                    .stride = 4 * sizeof(GLfloat),
                     .VBO = vertexBuffers["main"],
                     .offset = 0,
                     .instanced = false,
@@ -173,9 +184,20 @@ void Application::createNodes() {
             },
     };
 
-    Boids boids(elementBuffers["main"], shaders["main"], std::vector<void *>{&camera, &projection}, input_boids, 6,
+    SceneInfo sceneInfo = {
+            .elementBuffer = elementBuffers["cube"],
+            .vertexBuffer = vertexBuffers["cube"],
+            .primitiveCount = 6
+    };
+    SceneInfo samples = {
+            .elementBuffer = 0,
+            .vertexBuffer = vertexBuffers["sphere_cloud"],
+            .primitiveCount = 1000
+    };
+    Boids boids(elementBuffers["main"], shaders["boids"], std::vector<void *>{&camera, &projection}, input_boids,
+                sceneInfo, samples, 4, 6,
                 BOID_NUM);
-    //nodes.insert(std::make_pair("main", std::make_shared<Boids>(boids)));
+    nodes.insert(std::make_pair("main", std::make_shared<Boids>(boids)));
 
     std::vector<VertexInput> input_sphere_cloud = {
             {
@@ -189,8 +211,27 @@ void Application::createNodes() {
             }
     };
 
-    SphereCloud sphere(0, shaders["sphere_cloud"], std::vector<void *>{&camera, &projection}, input_sphere_cloud);
+    SphereCloud sphere(0, shaders["sphere_cloud"], std::vector<void *>{&camera, &projection}, input_sphere_cloud, 1000,
+                       1000, 1);
     nodes.insert(std::make_pair("sphere_cloud", std::make_shared<SphereCloud>(sphere)));
+
+    std::vector<VertexInput> input_cube = {
+            {
+                    .location = 0,
+                    .size = 4,
+                    .type = GL_FLOAT,
+                    .stride = sizeof(glm::vec4),
+                    .VBO = vertexBuffers["cube"],
+                    .offset = 0,
+                    .instanced = false,
+            }
+    };
+    cubeModel = glm::mat4(1.0f);
+    cubeModel = glm::scale(cubeModel, glm::vec3(2.5f));
+    cubeModel = glm::translate(cubeModel, glm::vec3(-0.5f));
+    SimpleMesh cube(elementBuffers["cube"], shaders["main"], std::vector<void *>{&camera, &projection, &cubeModel},
+                    input_cube, 8, 36, 1);
+    nodes.insert(std::make_pair("cube", std::make_shared<SimpleMesh>(cube)));
 }
 
 void Application::mouse_callback(GLFWwindow *window, double xpos, double ypos) {

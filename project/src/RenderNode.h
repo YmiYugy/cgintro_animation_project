@@ -7,14 +7,18 @@
 
 #include "Helper.h"
 
-struct RenderNode
-{
+struct RenderNode {
     GLuint EBO;
     GLuint program;
     GLuint VAO;
     std::vector<void *> UBOs;
+    GLuint num_vertices;
+    GLuint num_elements;
+    GLuint num_instances;
 
-    RenderNode(GLuint EBO, GLuint program, std::vector<void *> UBOs, const std::vector<VertexInput> &vertexInputs);
+    RenderNode(GLuint EBO, GLuint program, std::vector<void *> UBOs, const std::vector<VertexInput> &vertexInputs,
+               GLuint num_vertices, GLuint num_elements, GLuint num_instances);
+
     virtual void render() {}
 
     virtual void updateUBOs(float delta) {}

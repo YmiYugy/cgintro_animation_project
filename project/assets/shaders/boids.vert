@@ -1,8 +1,9 @@
 #version 430 core
-layout (location = 0) in vec3 aPos;
+layout (location = 0) in vec4 aPos;
 layout (location = 1) in vec4 pos;
 layout (location = 2) in vec4 dir;
 
+out vec4 color;
 uniform mat4 projectionView;
 
 
@@ -18,5 +19,6 @@ void main()
     h*v.x*v.z+v.y, h*v.y*v.z-v.x, c+h*v.z*v.z
     );
 
-    gl_Position = projectionView * vec4(rot*aPos + pos.xyz, 1.0f);
+    gl_Position = projectionView * vec4(rot*aPos.xyz + pos.xyz, 1.0f);
+    color = vec4(0.5, 0.1, 0.2, 1.0);
 }

@@ -34,6 +34,12 @@ struct VertexInput {
     bool instanced;
 };
 
+struct SceneInfo {
+    GLuint elementBuffer;
+    GLuint vertexBuffer;
+    GLuint primitiveCount;
+};
+
 std::vector<unsigned char> loadFile(const std::string &path);
 
 GLuint createBufferWithData(GLenum target, void *data, size_t size, GLenum usage);
@@ -43,5 +49,7 @@ GLuint compileShader(std::vector<unsigned char> source, GLenum type);
 GLuint linkShader(std::vector<GLuint> &shaders);
 
 std::vector<glm::vec4> generate_sphere_cloud();
+
+std::pair<std::vector<GLuint>, std::vector<glm::vec4>> generateCube();
 
 #endif //UNDERWATER_WORLD_HELPER_H
