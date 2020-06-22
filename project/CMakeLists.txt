@@ -12,6 +12,8 @@ include_directories(src)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_VULKAN_STATIC OFF)
+set(BUILD_SHARED_LIBS OFF)
 add_subdirectory(third_party/glfw)
 include_directories(third_party/glfw/include)
 

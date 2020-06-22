@@ -5,12 +5,26 @@
 #ifndef UNDERWATER_WORLD_HELPER_H
 #define UNDERWATER_WORLD_HELPER_H
 
-#include <string>
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/random.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <string>
+#include <map>
+#include <iostream>
+#include <random>
+#include <memory>
+#include <stdexcept>
+#include <cmath>
+#include <vector>
+#include <fstream>
+#include <algorithm>
 #include <vector>
 
-struct VertexInput
-{
+struct VertexInput {
     GLuint location;
     GLint size;
     GLenum type;
@@ -21,8 +35,13 @@ struct VertexInput
 };
 
 std::vector<unsigned char> loadFile(const std::string &path);
+
 GLuint createBufferWithData(GLenum target, void *data, size_t size, GLenum usage);
-GLint compileShader(std::vector<unsigned char> source, GLenum type);
+
+GLuint compileShader(std::vector<unsigned char> source, GLenum type);
+
 GLuint linkShader(std::vector<GLuint> &shaders);
+
+std::vector<glm::vec4> generate_sphere_cloud();
 
 #endif //UNDERWATER_WORLD_HELPER_H
