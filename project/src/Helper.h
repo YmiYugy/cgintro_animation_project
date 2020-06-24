@@ -2,6 +2,10 @@
 // Created by trist on 15/06/2020.
 //
 
+#ifndef _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
+#endif
+
 #ifndef UNDERWATER_WORLD_HELPER_H
 #define UNDERWATER_WORLD_HELPER_H
 
