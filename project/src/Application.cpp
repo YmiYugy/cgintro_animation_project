@@ -100,12 +100,13 @@ void Application::setupGL() {
     glViewport(0, 0, width, height);
     projection = glm::perspective(glm::radians(90.0f), static_cast<float>(width) / static_cast<float>(height), 0.001f,
                                   1000.0f);
-    camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90);
+    camera = Camera(glm::vec3(5.0f, 5.0f, 15.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90);
 }
 
 void Application::render() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     for (auto &node_pair : nodes) {
         node_pair.second->updateUBOs(deltaTime);
         node_pair.second->render();

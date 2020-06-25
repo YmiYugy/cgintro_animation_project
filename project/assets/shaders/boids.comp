@@ -3,7 +3,7 @@
 #extension GL_ARB_shader_storage_buffer_object: enable
 
 layout(
-local_size_x = 64,
+local_size_x = 1024,
 local_size_y = 1,
 local_size_z = 1
 ) in;
@@ -51,35 +51,38 @@ uniform float delta;
 
 #define eps 0.005
 
-const float max_steer_force = 3;
-const float max_speed = 3;
-const float min_speed = 0.5;
-const float view_radius = 1.5;
-const float avoid_radius = 0.2;
-const float align_weight = 3;
-const float cohesion_weight = 6;
-const float seperate_weight = 10.5;
+const float max_steer_force = 5;
+const float max_speed = 5.0;
+const float min_speed = 3.0;
+const float view_radius = 2.5;
+const float avoid_radius = 0.4;
+const float align_weight = 4;
+const float cohesion_weight = 3;
+const float seperate_weight = 4;
 const float collisions_avoid_dst = 2.5;
-const float avoid_collision_weight = 100;
+const float avoid_collision_weight = 10;
+const float collision_avoid_force_dst = 0.1 * 0.1;
 
 Evasion needs_evasion(vec3 v0, vec3 v1, vec3 v2, vec3 start, vec3 end) {
 
     vec3 u = v1 - v0;
     vec3 v = v2 - v0;
+    vec3 dir = end - start;// direction of line segment
+    float n_dir =dot(dir, dir);
     vec3 n = cross(u, v);
     float n_n = length(n);
-    if (n_n == 0) {
-        return Evasion(false, 0);
+    if (n_n < eps) {
+        return Evasion(true, n_dir);
     }
     n = normalize(n);
 
-    vec3 dir = end - start;// direction of line segment
+
     float a = dot(n, v0-start);
     float b = dot(n, dir);
 
-    if (b == 0) { // triangle parallel to segment
-        if (a == 0) {
-            return Evasion(false, 0);// in the same plane better avoid
+    if (abs(b) < eps) { // triangle parallel to segment
+        if (abs(a) < eps) {
+            return Evasion(true, 0);// in the same plane better avoid
         } else {
             return Evasion(false, 0);// disjoint no need to act
         }
@@ -87,7 +90,7 @@ Evasion needs_evasion(vec3 v0, vec3 v1, vec3 v2, vec3 start, vec3 end) {
 
     float r = a / b;
     if (r < 0.0 || r > 1.0) { // intersection of line with plane outside segment
-        return Evasion(false, r*length(dir));
+        return Evasion(false, 0);
     }
 
     vec3 i = start + r * dir;// intersection point
@@ -98,7 +101,7 @@ Evasion needs_evasion(vec3 v0, vec3 v1, vec3 v2, vec3 start, vec3 end) {
     if (m1 < 0 || m1 > 1 || m2 < 0 || m2 > 1) {
         return Evasion(false, 0);
     } else {
-        return Evasion(true, r*length(dir));
+        return Evasion(true, dot(i-start, i-start));
     }
 }
 
@@ -188,45 +191,62 @@ void main() {
             center -= pos;
         }
 
-        acceleration += steer_towards(center, vel) * cohesion_weight;
-        acceleration += steer_towards(alignment, vel) * align_weight;
-        acceleration += steer_towards(separate, vel) * seperate_weight;
+        acceleration += cohesion_weight * steer_towards(center, vel);
+        acceleration += align_weight * steer_towards(alignment, vel);
+        acceleration += seperate_weight * steer_towards(separate, vel);
     }
+    vel += delta * acceleration;
+
+    //    float speed = length(vel);
+    //    vel = clamp(speed, min_speed, max_speed)*vel/speed;
 
     vec4 q_rot = get_rotation_between(vec3(1, 0, 0), vel);
 
-    float distance = 0;
-    uint failed_samples = 0;
-    for (uint j = 0; j < sample_count; j++) {
-        bool evade = false;
-        float local_distance = 1/0;
-        vec3 start = pos;
-        vec3 end = pos + collisions_avoid_dst * normalize(rotate(q_rot, samplePoints[j].xyz));
-        for (uint i = 0; i < triangle_count; i++) {
-            vec3 v0 = verticies[indices[3*i + 0]].xyz;
-            vec3 v1 = verticies[indices[3*i + 1]].xyz;
-            vec3 v2 = verticies[indices[3*i + 2]].xyz;
-            Evasion test = needs_evasion(v0, v1, v2, start, end);
-            if (test.will_collide){
-                evade = true;
-                local_distance = min(test.dist, local_distance);
+    float dist = collisions_avoid_dst * collisions_avoid_dst;
+    vec3 vel_n = normalize(vel);
+    for (uint j = 0; j < triangle_count; j++) {
+        vec3 v0 = verticies[indices[3*j + 0]].xyz;
+        vec3 v1 = verticies[indices[3*j + 1]].xyz;
+        vec3 v2 = verticies[indices[3*j + 2]].xyz;
+        Evasion e = needs_evasion(v0, v1, v2, pos, pos + collisions_avoid_dst * vel_n);
+        if (e.will_collide) {
+            dist = min(dist, e.dist);
+        }
+    }
+
+    if (abs(dist-collisions_avoid_dst*collisions_avoid_dst) > eps) {
+        for (uint i = 1; i < sample_count; i++) {
+            vec3 start = pos;
+            vec3 sampleDir = normalize(rotate(q_rot, samplePoints[i].xyz));
+            vec3 end = pos + collisions_avoid_dst * sampleDir;
+
+            bool collide = false;
+
+            for (uint j = 0; j < triangle_count; j++) {
+                vec3 v0 = verticies[indices[3*j + 0]].xyz;
+                vec3 v1 = verticies[indices[3*j + 1]].xyz;
+                vec3 v2 = verticies[indices[3*j + 2]].xyz;
+                Evasion e = needs_evasion(v0, v1, v2, start, end);
+                if (e.will_collide) {
+                    collide = true;
+                    break;
+                }
+            }
+            if (!collide) {
+                if (dist < collision_avoid_force_dst) {
+                    vel = length(vel) * sampleDir;
+                    break;
+                } else {
+                    vel += delta * avoid_collision_weight * steer_towards(sampleDir, vel);
+                    break;
+                }
             }
         }
-        distance += local_distance;
-        failed_samples++;
-        if (!evade){
-            distance /= failed_samples;
-            acceleration += steer_towards((end - pos) * 1/collisions_avoid_dst, vel) * 1/(distance * distance) * avoid_collision_weight;
-            break;
-        }
     }
 
+    float speed = length(vel);
+    vel = clamp(speed, min_speed, max_speed)*vel/speed;
 
-    vel += acceleration*delta;
-    {
-        float speed = length(vel);
-        vel = clamp(speed, min_speed, max_speed)*normalize(vel);
-    }
     pos += vel * delta;
 
     boids2[gid].pos.xyz = pos;

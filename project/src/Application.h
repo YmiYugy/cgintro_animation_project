@@ -24,7 +24,7 @@ public:
     void operator=(Application const &) = delete;
 
 private:
-    const int BOID_NUM = 200 * 64;
+    const int BOID_NUM = 15 * 1024;
     GLFWwindow *window;
     std::map<std::string, GLuint> vertexBuffers;
     std::map<std::string, GLuint> elementBuffers;
