@@ -9,6 +9,6 @@ out vec4 color;
 
 void main()
 {
-    gl_Position = projectionView * model * aPos;
+    gl_Position = projectionView /** model*/ * aPos;
     color = vec4(0.3, 1.0, 0.2, 0.5);
 }

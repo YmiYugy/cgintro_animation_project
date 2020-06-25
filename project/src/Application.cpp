@@ -6,16 +6,14 @@
 #include "Application.h"
 
 float vertices[] = {
-        0.05f, 0.05f, 0.0f, 1.0f,   // top right
-        0.05f, -0.05f, 0.0f, 1.0f,  // bottom right
-        -0.05f, -0.05f, 0.0f, 1.0f, // bottom left
-        -0.05f, 0.05f, 0.0f, 1.0f,   // top left
+        -0.04f, 0.04f, 0.0f, 1.0f,
+        -0.04f, -0.04f, 0.0f, 1.0f,
+        0.08f, -0.0f, 0.0f, 1.0f,
 };
 
 unsigned int indices[] = {
         // note that we start from 0!
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
+        0, 2, 1
 };
 
 Application &Application::create_app() {
@@ -187,7 +185,7 @@ void Application::createNodes() {
     SceneInfo sceneInfo = {
             .elementBuffer = elementBuffers["cube"],
             .vertexBuffer = vertexBuffers["cube"],
-            .primitiveCount = 6
+            .primitiveCount = 12,
     };
     SceneInfo samples = {
             .elementBuffer = 0,
@@ -212,8 +210,8 @@ void Application::createNodes() {
     };
 
     SphereCloud sphere(0, shaders["sphere_cloud"], std::vector<void *>{&camera, &projection}, input_sphere_cloud, 1000,
-                       1000, 1);
-    nodes.insert(std::make_pair("sphere_cloud", std::make_shared<SphereCloud>(sphere)));
+                       100, 1);
+    //nodes.insert(std::make_pair("sphere_cloud", std::make_shared<SphereCloud>(sphere)));
 
     std::vector<VertexInput> input_cube = {
             {
@@ -227,8 +225,8 @@ void Application::createNodes() {
             }
     };
     cubeModel = glm::mat4(1.0f);
-    cubeModel = glm::scale(cubeModel, glm::vec3(2.5f));
-    cubeModel = glm::translate(cubeModel, glm::vec3(-0.5f));
+    cubeModel = glm::scale(cubeModel, glm::vec3(1.0f));
+    cubeModel = glm::translate(cubeModel, glm::vec3(-2.5f));
     SimpleMesh cube(elementBuffers["cube"], shaders["main"], std::vector<void *>{&camera, &projection, &cubeModel},
                     input_cube, 8, 36, 1);
     nodes.insert(std::make_pair("cube", std::make_shared<SimpleMesh>(cube)));

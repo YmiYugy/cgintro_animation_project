@@ -96,13 +96,13 @@ std::vector<glm::vec4> generate_sphere_cloud() {
 std::pair<std::vector<GLuint>, std::vector<glm::vec4>> generateCube() {
     std::vector<glm::vec4> vertices = {
             glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
-            glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
-            glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),
-            glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
-            glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
-            glm::vec4(1.0f, 0.0f, 1.0f, 1.0f),
-            glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-            glm::vec4(0.0f, 1.0f, 1.0f, 1.0f),
+            glm::vec4(10.0f, 0.0f, 0.0f, 1.0f),
+            glm::vec4(10.0f, 10.0f, 0.0f, 1.0f),
+            glm::vec4(0.0f, 10.0f, 0.0f, 1.0f),
+            glm::vec4(0.0f, 0.0f, 10.0f, 1.0f),
+            glm::vec4(10.0f, 0.0f, 10.0f, 1.0f),
+            glm::vec4(10.0f, 10.0f, 10.0f, 1.0f),
+            glm::vec4(0.0f, 10.0f, 10.0f, 1.0f),
     };
     std::vector<GLuint> indices = {
             1, 0, 3, 1, 3, 2, // bottom face

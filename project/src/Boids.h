@@ -25,6 +25,7 @@ public:
 
 private:
     GLuint boids;
+    GLuint boid_count;
     GLuint compProgram;
     Camera *camera;
     glm::mat4 *projection;
@@ -32,6 +33,7 @@ private:
     SceneInfo samples;
 
     GLuint debugBuffer;
+    bool even = true;
 };
 
 

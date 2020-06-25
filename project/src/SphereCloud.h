@@ -8,6 +8,7 @@
 #include "Helper.h"
 #include "RenderNode.h"
 #include "Camera.h"
+#include "Boids.h"
 
 class SphereCloud : public RenderNode {
 public:

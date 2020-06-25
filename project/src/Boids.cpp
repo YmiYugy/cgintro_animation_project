@@ -7,8 +7,14 @@
 void Boids::render() {
     glUseProgram(program);
     glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, even ? boids : debugBuffer);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Boid), (void *) offsetof(Boid, pos));
+    glVertexAttribDivisor(1, 1);
     glEnable(GL_DEPTH_TEST);
     glDrawElementsInstanced(GL_TRIANGLES, num_elements, GL_UNSIGNED_INT, nullptr, num_instances);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 }
 
 void Boids::updateUBOs(float delta) {
@@ -25,39 +31,42 @@ void Boids::updateUBOs(float delta) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
-    if (delta <= 0.05) {
-        glUseProgram(compProgram);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, boids);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, sceneInfo.elementBuffer);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, sceneInfo.vertexBuffer);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, samples.vertexBuffer);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, debugBuffer);
+    glUseProgram(compProgram);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, even ? boids : debugBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, sceneInfo.elementBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, sceneInfo.vertexBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, samples.vertexBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, even ? debugBuffer : boids);
 
-        GLint deltaLoc = glGetUniformLocation(compProgram, "delta");
-        glUniform1f(deltaLoc, delta * 0.6);
+    GLint deltaLoc = glGetUniformLocation(compProgram, "delta");
+    glUniform1f(deltaLoc, delta * 0.6);
 
-        GLint triangleCountLoc = glGetUniformLocation(compProgram, "triangle_count");
-        glUniform1ui(triangleCountLoc, sceneInfo.primitiveCount);
+    GLint triangleCountLoc = glGetUniformLocation(compProgram, "triangle_count");
+    glUniform1ui(triangleCountLoc, sceneInfo.primitiveCount);
 
-        GLint sampleCountLoc = glGetUniformLocation(compProgram, "sample_count");
-        glUniform1ui(sampleCountLoc, samples.primitiveCount);
+    GLint boidCountLoc = glGetUniformLocation(compProgram, "boid_count");
+    glUniform1ui(boidCountLoc, boid_count);
 
-        glDispatchCompute(num_instances / 64, 1, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-        glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
-    }
+    GLint sampleCountLoc = glGetUniformLocation(compProgram, "sample_count");
+    glUniform1ui(sampleCountLoc, samples.primitiveCount);
+
+    glDispatchCompute(num_instances / 64, 1, 1);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
+    even = !even;
 }
 
 Boids::Boids(GLuint EBO, GLuint program, std::vector<void *> UBOs, const std::vector<VertexInput> &vertexInputs,
              SceneInfo sceneInfo, SceneInfo samples, GLuint num_vertices, GLuint num_elements, GLuint num_instances)
         : RenderNode(EBO, program, UBOs, vertexInputs, num_vertices, num_elements, num_instances),
           boids(vertexInputs[1].VBO), camera(static_cast<Camera *>(UBOs[0])),
-          projection(static_cast<glm::mat4 *>(UBOs[1])), sceneInfo(sceneInfo), samples(samples) {
+          projection(static_cast<glm::mat4 *>(UBOs[1])), sceneInfo(sceneInfo), samples(samples),
+          boid_count(num_instances) {
     glBindBuffer(GL_ARRAY_BUFFER, vertexInputs[1].VBO);
     auto pBoid = static_cast<Boid *>(glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE));
     for (size_t i = 0; i < num_instances; i++) {
         Boid &boid = pBoid[i];
-        boid.pos = glm::vec4(glm::linearRand(glm::vec3(0.0f), glm::vec3(1.0f)), 1.0f);
+        boid.pos = glm::vec4(glm::linearRand(glm::vec3(1.5f), glm::vec3(8.5f)), 1.0f);
         boid.dir = glm::vec4(glm::ballRand(1.0f), 0.0f);
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);
