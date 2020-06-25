@@ -155,43 +155,43 @@ void Application::loadShaders() {
 void Application::createNodes() {
     std::vector<VertexInput> input_boids = {
             {
-                    .location = 0,
-                    .size = 4,
-                    .type = GL_FLOAT,
-                    .stride = 4 * sizeof(GLfloat),
-                    .VBO = vertexBuffers["main"],
-                    .offset = 0,
-                    .instanced = false,
+                    0,
+                    4,
+                    GL_FLOAT,
+                    4 * sizeof(GLfloat),
+                    vertexBuffers["main"],
+                    0,
+                    false,
             },
             {
-                    .location = 1,
-                    .size = 4,
-                    .type = GL_FLOAT,
-                    .stride = sizeof(Boid),
-                    .VBO = vertexBuffers["boids"],
-                    .offset = offsetof(Boid, pos),
-                    .instanced = true,
+                    1,
+                    4,
+                    GL_FLOAT,
+                    sizeof(Boid),
+                    vertexBuffers["boids"],
+                    offsetof(Boid, pos),
+                    true,
             },
             {
-                    .location = 2,
-                    .size = 4,
-                    .type = GL_FLOAT,
-                    .stride = sizeof(Boid),
-                    .VBO = vertexBuffers["boids"],
-                    .offset = offsetof(Boid, dir),
-                    .instanced = true,
+                    2,
+                    4,
+                    GL_FLOAT,
+                    sizeof(Boid),
+                    vertexBuffers["boids"],
+                    offsetof(Boid, dir),
+                    true,
             },
     };
 
     SceneInfo sceneInfo = {
-            .elementBuffer = elementBuffers["cube"],
-            .vertexBuffer = vertexBuffers["cube"],
-            .primitiveCount = 12,
+            elementBuffers["cube"],
+            vertexBuffers["cube"],
+            12,
     };
     SceneInfo samples = {
-            .elementBuffer = 0,
-            .vertexBuffer = vertexBuffers["sphere_cloud"],
-            .primitiveCount = 1000
+            0,
+            vertexBuffers["sphere_cloud"],
+            1000
     };
     Boids boids(elementBuffers["main"], shaders["boids"], std::vector<void *>{&camera, &projection}, input_boids,
                 sceneInfo, samples, 4, 6,
@@ -200,13 +200,13 @@ void Application::createNodes() {
 
     std::vector<VertexInput> input_sphere_cloud = {
             {
-                    .location = 0,
-                    .size = 4,
-                    .type = GL_FLOAT,
-                    .stride = sizeof(glm::vec4),
-                    .VBO = vertexBuffers["sphere_cloud"],
-                    .offset = 0,
-                    .instanced = false,
+                    0,
+                    4,
+                    GL_FLOAT,
+                    sizeof(glm::vec4),
+                    vertexBuffers["sphere_cloud"],
+                    0,
+                    false,
             }
     };
 
@@ -216,13 +216,13 @@ void Application::createNodes() {
 
     std::vector<VertexInput> input_cube = {
             {
-                    .location = 0,
-                    .size = 4,
-                    .type = GL_FLOAT,
-                    .stride = sizeof(glm::vec4),
-                    .VBO = vertexBuffers["cube"],
-                    .offset = 0,
-                    .instanced = false,
+                    0,
+                    4,
+                    GL_FLOAT,
+                    sizeof(glm::vec4),
+                    vertexBuffers["cube"],
+                    0,
+                    false,
             }
     };
     cubeModel = glm::mat4(1.0f);
