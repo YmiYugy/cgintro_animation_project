@@ -85,7 +85,7 @@ Boids::Boids(GLuint EBO, GLuint program, std::vector<void *> UBOs, const std::ve
 
 
     auto compCode = loadFile("assets/shaders/boids.comp");
-    std::vector<GLuint> compShader = std::vector{compileShader(compCode, GL_COMPUTE_SHADER)};
+    std::vector<GLuint> compShader = std::vector<GLuint>{compileShader(compCode, GL_COMPUTE_SHADER)};
     compProgram = linkShader(compShader);
     glDeleteShader(compShader[0]);
 }
