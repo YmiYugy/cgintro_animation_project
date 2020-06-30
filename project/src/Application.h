@@ -12,6 +12,7 @@
 #include "Camera.h"
 #include "SphereCloud.h"
 #include "SimpleMesh.h"
+#include "ObjLoader.h"
 
 class Application {
 public:
@@ -38,6 +39,10 @@ private:
     float lastY = 1000 / 2;
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
+    std::vector<glm::vec3> obj_vertices;
+    std::vector<glm::vec3> obj_normals;
+    std::vector<glm::vec2> obj_uvs;
+    std::vector<unsigned int> obj_indices;
 
     Application();
 
