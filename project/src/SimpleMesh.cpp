@@ -5,7 +5,7 @@
 #include "SimpleMesh.h"
 
 void SimpleMesh::render() {
-    glDisable(GL_DEPTH_TEST);
+    //glDisable(GL_DEPTH_TEST);
     glUseProgram(program);
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, num_elements, GL_UNSIGNED_INT, nullptr);

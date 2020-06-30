@@ -24,6 +24,8 @@
 #include <stdexcept>
 #include <cmath>
 #include <vector>
+#include <sstream>
+#include <iomanip>
 #include <fstream>
 #include <algorithm>
 #include <vector>

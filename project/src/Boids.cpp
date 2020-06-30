@@ -51,7 +51,7 @@ void Boids::updateUBOs(float delta) {
         GLint sampleCountLoc = glGetUniformLocation(compProgram, "sample_count");
         glUniform1ui(sampleCountLoc, samples.primitiveCount);
 
-        glDispatchCompute(num_instances / 1024, 1, 1);
+        glDispatchCompute(num_instances / BOIDS_PER_WORK_GROUP, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
         even = !even;

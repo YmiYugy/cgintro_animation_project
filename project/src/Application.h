@@ -25,7 +25,7 @@ public:
     void operator=(Application const &) = delete;
 
 private:
-    const int BOID_NUM = 15 * 1024;
+    const int BOID_NUM = 15 * Boids::BOIDS_PER_WORK_GROUP;
     GLFWwindow *window;
     std::map<std::string, GLuint> vertexBuffers;
     std::map<std::string, GLuint> elementBuffers;
@@ -39,6 +39,8 @@ private:
     float lastY = 1000 / 2;
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
+    double lastSample = 0;
+    uint32_t framesSinceSample = 0;
     std::vector<glm::vec3> obj_vertices;
     std::vector<glm::vec3> obj_normals;
     std::vector<glm::vec2> obj_uvs;
@@ -67,6 +69,8 @@ private:
     static void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 
     static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+
+    void showFPS();
 
     void render();
 };

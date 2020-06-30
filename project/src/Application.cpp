@@ -39,7 +39,7 @@ void Application::run() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         processInput();
-
+        showFPS();
         render();
 
         glfwSwapBuffers(window);
@@ -100,6 +100,21 @@ void Application::setupGL() {
     projection = glm::perspective(glm::radians(90.0f), static_cast<float>(width) / static_cast<float>(height), 0.001f,
                                   1000.0f);
     camera = Camera(glm::vec3(5.0f, 5.0f, 15.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90);
+}
+
+void Application::showFPS() {
+    double sample = glfwGetTime();
+    double delta = sample - lastSample;
+    framesSinceSample++;
+    if(delta >= 1.0) {
+        std::stringstream ss;
+        ss << "FPS: " << std::fixed << std::setprecision(1) << (static_cast<double>(framesSinceSample)/delta);
+        std::string s = ss.str();
+        const char* s_ptr = s.c_str();
+        glfwSetWindowTitle(window, s_ptr);
+        lastSample = sample;
+        framesSinceSample = 0;
+    }
 }
 
 void Application::render() {
@@ -227,7 +242,7 @@ void Application::createNodes() {
                     4,                      //size
                     GL_FLOAT,               //type
                     sizeof(glm::vec4),      //stride
-                    vertexBuffers["cube"],  //VBO
+                    vertexBuffers["obj"],  //VBO
                     0,                      //offset
                     false,                  //instanced
             }
@@ -235,7 +250,7 @@ void Application::createNodes() {
     cubeModel = glm::mat4(1.0f);
     cubeModel = glm::scale(cubeModel, glm::vec3(1.0f));
     cubeModel = glm::translate(cubeModel, glm::vec3(-2.5f));
-    SimpleMesh cube(elementBuffers["cube"], shaders["main"], std::vector<void*>{&camera, & projection, & cubeModel},
+    SimpleMesh cube(elementBuffers["obj"], shaders["main"], std::vector<void*>{&camera, & projection, & cubeModel},
         input_cube, 8, 36, 1);
     nodes.insert(std::make_pair("cube", std::make_shared<SimpleMesh>(cube)));
 
