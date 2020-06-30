@@ -15,7 +15,7 @@ RenderNode::RenderNode(GLuint EBO, GLuint program, std::vector<void *> UBOs,
     for (auto &input : vertexInputs) {
         glBindBuffer(GL_ARRAY_BUFFER, input.VBO);
         glEnableVertexAttribArray(input.location);
-        glVertexAttribPointer(input.location, input.size, input.type, GL_FALSE, input.stride, (void *) input.offset);
+        glVertexAttribPointer(input.location, input.size, input.type, GL_FALSE, input.stride, (void*)(static_cast<size_t>(input.offset)));
         if (input.instanced) {
             glVertexAttribDivisor(input.location, 1);
         }
