@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
 project(underwater_world)
-
-set(CMAKE_CXX_STANDARD 17)
-
 file(GLOB SRC
         "src/*.h"
         "src/*.cpp"
@@ -31,4 +28,13 @@ add_subdirectory(third_party/assimp)
 include_directories(third_party/assimp/include)
 
 add_executable(${CMAKE_PROJECT_NAME} ${SRC})
+
+set_target_properties(${CMAKE_PROJECT_NAME} 
+        PROPERTIES
+                CMAKE_CXX_STANDARD 17
+                CMAKE_CXX_STANDARD_REQUIRED YES
+                CMAKE_CXX_EXTENSIONS NO
+)
+
+
 target_link_libraries(${CMAKE_PROJECT_NAME} glfw glad glm assimp)
