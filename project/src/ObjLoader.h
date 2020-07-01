@@ -1,13 +1,17 @@
 #include "Helper.h"
 
+struct Object {
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> normals;
+	std::vector<glm::vec2> uvs;
+	std::vector<GLuint> vertex_indices;
+	std::vector<GLuint> normal_indices;
+	std::vector<GLuint> uv_indices;
+
+};
+
 bool loadOBJ(
 	const char* path,
-	std::vector<glm::vec3>& out_vertices,
-	std::vector<unsigned int>& out_indices,
-	std::vector<glm::vec3>& out_normals,
-	std::vector<glm::vec2>& out_uvs
+	std::vector<Object>& parsedObjects
 );
 
-struct Object {
-	int a;
-};

@@ -41,10 +41,7 @@ private:
     float lastFrame = 0.0f;
     double lastSample = 0;
     uint32_t framesSinceSample = 0;
-    std::vector<glm::vec3> obj_vertices;
-    std::vector<glm::vec3> obj_normals;
-    std::vector<glm::vec2> obj_uvs;
-    std::vector<unsigned int> obj_indices;
+    std::vector<Object> parsedObjects;
 
     Application();
 

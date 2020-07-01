@@ -2,15 +2,12 @@
 
 bool loadOBJ(
 	const char* path,
-	std::vector<glm::vec3>& out_vertices,
-	std::vector<unsigned int>& out_indices,
-	std::vector<glm::vec3>& out_normals,
-	std::vector<glm::vec2>& out_uvs
+	std::vector<Object>& parsedObjects
 
 ) {
 	printf("Loading OBJ file %s...\n", path);
 
-	std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
+	std::vector<GLuint> vertexIndices, uvIndices, normalIndices;
 	std::vector<glm::vec3> temp_vertices;
 	std::vector<glm::vec2> temp_uvs;
 	std::vector<glm::vec3> temp_normals;
@@ -23,13 +20,22 @@ bool loadOBJ(
 		return false;
 	}
 
+	bool first_o = true;
 	while (1) {
 
 		char lineHeader[128];
 		// read the first word of the line
 		int res = fscanf(file, "%s", lineHeader);
-		if (res == EOF)
+		if (res == EOF) {
+			Object object;
+			object.vertices = temp_vertices;
+			object.normals = temp_normals;
+			object.uvs = temp_uvs;
+			object.vertex_indices = vertexIndices;
+			parsedObjects.push_back(object);
 			break; // EOF = End Of File. Quit the loop.
+		}
+				
 
 		// else : parse lineHeader
 
@@ -51,7 +57,7 @@ bool loadOBJ(
 		}
 		else if (strcmp(lineHeader, "f") == 0) {
 			std::string vertex1, vertex2, vertex3;
-			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
+			GLuint vertexIndex[3], uvIndex[3], normalIndex[3];
 			int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
 			vertexIndex[0] -= 1; vertexIndex[1] -= 1; vertexIndex[2] -= 1;	//indices start at 0
 			if (matches != 9) {
@@ -63,11 +69,26 @@ bool loadOBJ(
 			vertexIndices.push_back(vertexIndex[1]);
 			vertexIndices.push_back(vertexIndex[2]);
 			uvIndices.push_back(uvIndex[0]);			//not used yet
-			uvIndices.push_back(uvIndex[1]);			
-			uvIndices.push_back(uvIndex[2]);			
+			uvIndices.push_back(uvIndex[1]);
+			uvIndices.push_back(uvIndex[2]);
 			normalIndices.push_back(normalIndex[0]);	//not used yet
-			normalIndices.push_back(normalIndex[1]);	
-			normalIndices.push_back(normalIndex[2]);	
+			normalIndices.push_back(normalIndex[1]);
+			normalIndices.push_back(normalIndex[2]);
+		}
+		else if (strcmp(lineHeader, "o") == 0) {
+			if (first_o) first_o = false;
+			else {
+				Object object;
+				object.vertices = temp_vertices;
+				object.normals = temp_normals;
+				object.uvs = temp_uvs;
+				object.vertex_indices = vertexIndices;
+				parsedObjects.push_back(object);
+				temp_vertices.clear();
+				temp_normals.clear();
+				temp_uvs.clear();
+				vertexIndices.clear();
+			}
 		}
 		else {
 			// Probably a comment, eat up the rest of the line
@@ -76,8 +97,6 @@ bool loadOBJ(
 		}
 
 	}
-	out_indices = vertexIndices;	//setVertexIndices
-	out_vertices = temp_vertices;	//setVertices
 
 
 	fclose(file);
