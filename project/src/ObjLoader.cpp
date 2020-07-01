@@ -53,6 +53,7 @@ bool loadOBJ(
 			std::string vertex1, vertex2, vertex3;
 			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
 			int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
+			vertexIndex[0] -= 1; vertexIndex[1] -= 1; vertexIndex[2] -= 1;	//indices start at 0
 			if (matches != 9) {
 				printf("File can't be read. Try exporting with other options\n");
 				fclose(file);
@@ -62,11 +63,11 @@ bool loadOBJ(
 			vertexIndices.push_back(vertexIndex[1]);
 			vertexIndices.push_back(vertexIndex[2]);
 			uvIndices.push_back(uvIndex[0]);			//not used yet
-			uvIndices.push_back(uvIndex[1]);			//not used yet
-			uvIndices.push_back(uvIndex[2]);			//not used yet
+			uvIndices.push_back(uvIndex[1]);			
+			uvIndices.push_back(uvIndex[2]);			
 			normalIndices.push_back(normalIndex[0]);	//not used yet
-			normalIndices.push_back(normalIndex[1]);	//not used yet
-			normalIndices.push_back(normalIndex[2]);	//not used yet
+			normalIndices.push_back(normalIndex[1]);	
+			normalIndices.push_back(normalIndex[2]);	
 		}
 		else {
 			// Probably a comment, eat up the rest of the line

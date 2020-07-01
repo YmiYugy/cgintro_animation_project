@@ -239,10 +239,10 @@ void Application::createNodes() {
     std::vector<VertexInput> input_cube = {
             {
                     0,                      //location
-                    4,                      //size
+                    3,                      //size
                     GL_FLOAT,               //type
-                    sizeof(glm::vec4),      //stride
-                    vertexBuffers["obj"],  //VBO
+                    sizeof(glm::vec3),      //stride
+                    vertexBuffers["obj"],   //VBO
                     0,                      //offset
                     false,                  //instanced
             }
