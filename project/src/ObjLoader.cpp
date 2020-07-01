@@ -76,8 +76,8 @@ bool loadOBJ(
 		}
 
 	}
-	out_indices = vertexIndices;
-	out_vertices = temp_vertices;
+	out_indices = vertexIndices;	//setVertexIndices
+	out_vertices = temp_vertices;	//setVertices
 
 
 	fclose(file);
