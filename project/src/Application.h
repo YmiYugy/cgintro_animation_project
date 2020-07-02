@@ -29,6 +29,7 @@ private:
     GLFWwindow *window;
     std::map<std::string, GLuint> vertexBuffers;
     std::map<std::string, GLuint> elementBuffers;
+    std::map<std::string, GLuint> uvBuffers;
     std::map<std::string, GLuint> shaders;
     std::map<std::string, std::shared_ptr<RenderNode>> nodes;
     glm::mat4 projection;

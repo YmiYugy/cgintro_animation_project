@@ -15,3 +15,5 @@ bool loadOBJ(
 	std::vector<Object>& parsedObjects
 );
 
+//loadBMP-File: gives texture
+GLuint loadBMP(const char* imagepath);

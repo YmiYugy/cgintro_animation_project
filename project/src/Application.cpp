@@ -146,7 +146,7 @@ void Application::loadScene() {
 
     //ObjLoader:
 
-    bool res = loadOBJ("assets/models/testcube.obj", parsedObjects);
+    bool res = loadOBJ("assets/models/texturedcube.obj", parsedObjects);
 
     vertexBuffers["obj"] = createBufferWithData(GL_ARRAY_BUFFER, parsedObjects[0].vertices.data(),
                                                 sizeof(glm::vec3) * parsedObjects[0].vertices.size(),
@@ -155,6 +155,10 @@ void Application::loadScene() {
     elementBuffers["obj"] = createBufferWithData(GL_ELEMENT_ARRAY_BUFFER, parsedObjects[0].vertex_indices.data(),
                                                 sizeof(GLuint) * parsedObjects[0].vertex_indices.size(),
                                                  GL_STATIC_DRAW);
+
+    uvBuffers["obj"] = createBufferWithData(GL_ARRAY_BUFFER, parsedObjects[0].uvs.data(),
+                                                sizeof(glm::vec2) * parsedObjects[0].uvs.size(),
+                                                GL_STATIC_DRAW);
 
 }
 
@@ -240,7 +244,7 @@ void Application::createNodes() {
     SphereCloud sphere(0, shaders["sphere_cloud"], std::vector<void*>{&camera, & projection}, input_sphere_cloud, 1000,
         100, 1);
     //nodes.insert(std::make_pair("sphere_cloud", std::make_shared<SphereCloud>(sphere)));
-
+    
     std::vector<VertexInput> input_cube = {
             {
                     0,                      //location
@@ -258,6 +262,7 @@ void Application::createNodes() {
     SimpleMesh cube(elementBuffers["obj"], shaders["main"], std::vector<void*>{&camera, & projection, & cubeModel},
         input_cube, parsedObjects[0].vertices.size(), parsedObjects[0].vertex_indices.size(), 1);
     nodes.insert(std::make_pair("obj", std::make_shared<SimpleMesh>(cube)));
+
 
 }
 
