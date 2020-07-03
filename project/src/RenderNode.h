@@ -15,9 +15,11 @@ struct RenderNode {
     GLuint num_vertices;
     GLuint num_elements;
     GLuint num_instances;
+    GLuint texture;
+    GLuint UVS;
 
     RenderNode(GLuint EBO, GLuint program, std::vector<void *> UBOs, const std::vector<VertexInput> &vertexInputs,
-               GLuint num_vertices, GLuint num_elements, GLuint num_instances);
+               GLuint num_vertices, GLuint num_elements, GLuint num_instances, GLuint texture, GLuint UVS);
 
     virtual void render() {}
 

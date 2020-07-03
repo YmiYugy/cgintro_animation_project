@@ -5,7 +5,8 @@
 #include "SimpleMesh.h"
 
 void SimpleMesh::render() {
-    //glDisable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
     glUseProgram(program);
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, num_elements, GL_UNSIGNED_INT, nullptr);
@@ -20,4 +21,9 @@ void SimpleMesh::updateUBOs(float delta) {
     GLint modelLoc = glGetUniformLocation(program, "model");
     glm::mat4 model = *reinterpret_cast<glm::mat4 *>(UBOs[2]);
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+    GLuint textureID = glGetUniformLocation(program, "textureSampler");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glUniform1i(textureID, 0);
 }

@@ -5,6 +5,21 @@
 
 #include "Helper.h"
 
+GLuint makeShader(const char* vertex_file_path, const char* fragment_file_path) {
+    std::vector<unsigned char> vertex_source = loadFile(vertex_file_path);
+    std::vector<unsigned char> fragment_source = loadFile(fragment_file_path);
+    
+    GLuint vertexShader = compileShader(vertex_source, GL_VERTEX_SHADER);
+    GLuint fragmentShader = compileShader(fragment_source, GL_FRAGMENT_SHADER);
+    std::vector<GLuint> shader_vector = { vertexShader, fragmentShader };
+    GLuint shaderProgram = linkShader(shader_vector);
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    return shaderProgram;
+}
+
 GLuint compileShader(std::vector<unsigned char> source, GLenum type) {
     GLint size = source.size();
     const auto *const data = reinterpret_cast<const GLchar *const>(source.data());

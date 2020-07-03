@@ -146,7 +146,7 @@ void Application::loadScene() {
 
     //ObjLoader:
 
-    bool res = loadOBJ("assets/models/texturedcube.obj", parsedObjects);
+    bool res = loadOBJ("assets/models/ground_sand.obj", parsedObjects);
 
     vertexBuffers["obj"] = createBufferWithData(GL_ARRAY_BUFFER, parsedObjects[0].vertices.data(),
                                                 sizeof(glm::vec3) * parsedObjects[0].vertices.size(),
@@ -159,28 +159,18 @@ void Application::loadScene() {
     uvBuffers["obj"] = createBufferWithData(GL_ARRAY_BUFFER, parsedObjects[0].uvs.data(),
                                                 sizeof(glm::vec2) * parsedObjects[0].uvs.size(),
                                                 GL_STATIC_DRAW);
-
 }
 
 void Application::loadShaders() {
-    GLuint boids_vsh = compileShader(loadFile("assets/shaders/boids.vert"), GL_VERTEX_SHADER);
-    GLuint fsh = compileShader(loadFile("assets/shaders/main.frag"), GL_FRAGMENT_SHADER);
-    std::vector<GLuint> boids = {boids_vsh, fsh};
-    GLuint boid_program = linkShader(boids);
-    shaders["boids"] = boid_program;
+    
+    shaders["boids"] = makeShader("assets/shaders/boids.vert", "assets/shaders/main.frag");
 
-    GLuint sphere_cloud_vsh = compileShader(loadFile("assets/shaders/sphere_cloud.vert"), GL_VERTEX_SHADER);
-    std::vector<GLuint> sphere_cloud = {sphere_cloud_vsh, fsh};
-    shaders["sphere_cloud"] = linkShader(sphere_cloud);
+    shaders["sphere_cloud"] = makeShader("assets/shaders/sphere_cloud.vert", "assets/shaders/main.frag");
 
-    GLuint main_vsh = compileShader(loadFile("assets/shaders/main.vert"), GL_VERTEX_SHADER);
-    std::vector<GLuint> main = {main_vsh, fsh};
-    shaders["main"] = linkShader(main);
+    shaders["main"] = makeShader("assets/shaders/main.vert", "assets/shaders/main.frag");
 
-    glDeleteShader(main_vsh);
-    glDeleteShader(sphere_cloud_vsh);
-    glDeleteShader(boids_vsh);
-    glDeleteShader(fsh);
+    shaders["tex"] = makeShader("assets/shaders/texture.vert", "assets/shaders/texture.frag");
+
 }
 
 void Application::createNodes() {
@@ -226,9 +216,9 @@ void Application::createNodes() {
     };
     Boids boids(elementBuffers["main"], shaders["boids"], std::vector<void*>{&camera, & projection}, input_boids,
         sceneInfo, samples, 4, 6,
-        BOID_NUM);
+        BOID_NUM, 0, 0);
     nodes.insert(std::make_pair("main", std::make_shared<Boids>(boids)));
-
+    /*
     std::vector<VertexInput> input_sphere_cloud = {
             {
                     0,                              //location
@@ -244,7 +234,8 @@ void Application::createNodes() {
     SphereCloud sphere(0, shaders["sphere_cloud"], std::vector<void*>{&camera, & projection}, input_sphere_cloud, 1000,
         100, 1);
     //nodes.insert(std::make_pair("sphere_cloud", std::make_shared<SphereCloud>(sphere)));
-    
+    */
+
     std::vector<VertexInput> input_cube = {
             {
                     0,                      //location
@@ -256,11 +247,13 @@ void Application::createNodes() {
                     false,                  //instanced
             }
     };
+    GLuint texture = loadBMP("assets/models/sand_texture.bmp");     //load texture
     cubeModel = glm::mat4(1.0f);
     cubeModel = glm::scale(cubeModel, glm::vec3(1.0f));
     cubeModel = glm::translate(cubeModel, glm::vec3(-2.5f));
-    SimpleMesh cube(elementBuffers["obj"], shaders["main"], std::vector<void*>{&camera, & projection, & cubeModel},
-        input_cube, parsedObjects[0].vertices.size(), parsedObjects[0].vertex_indices.size(), 1);
+    SimpleMesh cube(elementBuffers["obj"], shaders["tex"], std::vector<void*>{&camera, & projection, & cubeModel},
+        input_cube, parsedObjects[0].vertices.size(), parsedObjects[0].vertex_indices.size(), 1,
+        texture, uvBuffers["obj"]);
     nodes.insert(std::make_pair("obj", std::make_shared<SimpleMesh>(cube)));
 
 

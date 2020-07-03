@@ -54,6 +54,8 @@ GLuint compileShader(std::vector<unsigned char> source, GLenum type);
 
 GLuint linkShader(std::vector<GLuint> &shaders);
 
+GLuint makeShader(const char* vertex_file_path, const char* fragment_file_path);
+
 std::vector<glm::vec4> generate_sphere_cloud();
 
 std::pair<std::vector<GLuint>, std::vector<glm::vec4>> generateCube();
