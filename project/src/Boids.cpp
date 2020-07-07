@@ -61,8 +61,8 @@ void Boids::updateUBOs(float delta) {
 //Boids dont use textures at the moment
 Boids::Boids(GLuint EBO, GLuint program, std::vector<void *> UBOs, const std::vector<VertexInput> &vertexInputs,
              SceneInfo sceneInfo, SceneInfo samples, GLuint num_vertices, GLuint num_elements, GLuint num_instances,
-            GLuint texture, GLuint UVS)
-        : RenderNode(EBO, program, UBOs, vertexInputs, num_vertices, num_elements, num_instances, texture, UVS),
+            GLuint texture, GLuint UVs)
+        : RenderNode(EBO, program, UBOs, vertexInputs, num_vertices, num_elements, num_instances, texture, UVs),
           boids(vertexInputs[1].VBO), camera(static_cast<Camera *>(UBOs[0])),
           projection(static_cast<glm::mat4 *>(UBOs[1])), sceneInfo(sceneInfo), samples(samples),
           boid_count(num_instances) {

@@ -43,6 +43,9 @@ private:
     double lastSample = 0;
     uint32_t framesSinceSample = 0;
     std::vector<Object> parsedObjects;
+    std::vector<GLuint> vBuffers;
+    std::vector<GLuint> eBuffers;
+    std::vector<GLuint> uBuffers;
 
     Application();
 
@@ -71,6 +74,8 @@ private:
     void showFPS();
 
     void render();
+
+    SimpleMesh Application::createParsedObjectNode(int i);
 };
 
 

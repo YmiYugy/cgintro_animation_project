@@ -145,20 +145,14 @@ void Application::loadScene() {
                                                  sizeof(glm::vec4) * cube.second.size(), GL_STATIC_DRAW);
 
     //ObjLoader:
+    bool res = loadOBJ("assets/models/ap_ship.obj", parsedObjects);
+    parsedObjects[0].texture = loadDDS("assets/models/rust.dds");       //load texture
 
-    bool res = loadOBJ("assets/models/ground_sand.obj", parsedObjects);
+    res = loadOBJ("assets/models/ground_sand.obj", parsedObjects);
+    parsedObjects[1].texture = loadDDS("assets/models/sand_texture.dds");   //load texture
 
-    vertexBuffers["obj"] = createBufferWithData(GL_ARRAY_BUFFER, parsedObjects[0].vertices.data(),
-                                                sizeof(glm::vec3) * parsedObjects[0].vertices.size(),
-                                                GL_STATIC_DRAW);
-
-    elementBuffers["obj"] = createBufferWithData(GL_ELEMENT_ARRAY_BUFFER, parsedObjects[0].vertex_indices.data(),
-                                                sizeof(GLuint) * parsedObjects[0].vertex_indices.size(),
-                                                 GL_STATIC_DRAW);
-
-    uvBuffers["obj"] = createBufferWithData(GL_ARRAY_BUFFER, parsedObjects[0].uvs.data(),
-                                                sizeof(glm::vec2) * parsedObjects[0].uvs.size(),
-                                                GL_STATIC_DRAW);
+    res = loadOBJ("assets/models/ap_rocks.obj", parsedObjects);
+    parsedObjects[2].texture = loadDDS("assets/models/rocks.dds");   //load texture
 }
 
 void Application::loadShaders() {
@@ -236,27 +230,10 @@ void Application::createNodes() {
     //nodes.insert(std::make_pair("sphere_cloud", std::make_shared<SphereCloud>(sphere)));
     */
 
-    std::vector<VertexInput> input_cube = {
-            {
-                    0,                      //location
-                    3,                      //size
-                    GL_FLOAT,               //type
-                    sizeof(glm::vec3),      //stride
-                    vertexBuffers["obj"],   //VBO
-                    0,                      //offset
-                    false,                  //instanced
-            }
-    };
-    GLuint texture = loadBMP("assets/models/sand_texture.bmp");     //load texture
-    cubeModel = glm::mat4(1.0f);
-    cubeModel = glm::scale(cubeModel, glm::vec3(1.0f));
-    cubeModel = glm::translate(cubeModel, glm::vec3(-2.5f));
-    SimpleMesh cube(elementBuffers["obj"], shaders["tex"], std::vector<void*>{&camera, & projection, & cubeModel},
-        input_cube, parsedObjects[0].vertices.size(), parsedObjects[0].vertex_indices.size(), 1,
-        texture, uvBuffers["obj"]);
-    nodes.insert(std::make_pair("obj", std::make_shared<SimpleMesh>(cube)));
-
-
+    //ObjLoader:
+    nodes.insert(std::make_pair("obj0", std::make_shared<SimpleMesh>(createParsedObjectNode(0))));
+    nodes.insert(std::make_pair("obj1", std::make_shared<SimpleMesh>(createParsedObjectNode(1))));
+    nodes.insert(std::make_pair("obj2", std::make_shared<SimpleMesh>(createParsedObjectNode(2))));
 }
 
 void Application::mouse_callback(GLFWwindow *window, double xpos, double ypos) {
@@ -279,4 +256,35 @@ void Application::mouse_callback(GLFWwindow *window, double xpos, double ypos) {
 void Application::scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
     auto *app = static_cast<Application *>(glfwGetWindowUserPointer(window));
     app->camera.ProcessMouseScroll(yoffset);
+}
+
+SimpleMesh Application::createParsedObjectNode(int i) {
+
+    vBuffers.push_back(createBufferWithData(GL_ARRAY_BUFFER, parsedObjects[i].vertices.data(),
+                        sizeof(glm::vec3) * parsedObjects[i].vertices.size(), GL_STATIC_DRAW));
+
+    eBuffers.push_back(createBufferWithData(GL_ELEMENT_ARRAY_BUFFER, parsedObjects[i].vertex_indices.data(),
+                        sizeof(GLuint) * parsedObjects[i].vertex_indices.size(), GL_STATIC_DRAW));
+
+    uBuffers.push_back(createBufferWithData(GL_ARRAY_BUFFER, parsedObjects[i].uvs.data(),
+                        sizeof(glm::vec2) * parsedObjects[i].uvs.size(), GL_STATIC_DRAW));
+
+    std::vector<VertexInput> input_obj = {
+        {
+                0,                      //location
+                3,                      //size
+                GL_FLOAT,               //type
+                sizeof(glm::vec3),      //stride
+                vBuffers[i],            //VBO
+                0,                      //offset
+                false,                  //instanced
+        }
+    };
+
+    glm::mat4 model = glm::mat4(1.0f);
+    SimpleMesh obj(eBuffers[i], shaders["tex"], std::vector<void*>{&camera, & projection, & model},
+        input_obj, parsedObjects[i].vertices.size(), parsedObjects[i].vertex_indices.size(), 1,
+        parsedObjects[i].texture, uBuffers[i]);
+
+    return obj;
 }

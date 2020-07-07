@@ -19,7 +19,7 @@ public:
     static const uint32_t BOIDS_PER_WORK_GROUP = 64;
     Boids(GLuint EBO, GLuint program, std::vector<void *> UBOs, const std::vector<VertexInput> &vertexInputs,
           SceneInfo sceneInfo, SceneInfo samples, GLuint num_vertices, GLuint num_elements, GLuint num_instances,
-          GLuint texture, GLuint UVS);
+          GLuint texture, GLuint UVs);
 
     void render() override;
 
