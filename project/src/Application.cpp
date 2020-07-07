@@ -151,8 +151,8 @@ void Application::loadScene() {
     res = loadOBJ("assets/models/ground_sand.obj", parsedObjects);
     parsedObjects[1].texture = loadDDS("assets/models/sand_texture.dds");   //load texture
 
-    res = loadOBJ("assets/models/ap_rocks.obj", parsedObjects);
-    parsedObjects[2].texture = loadDDS("assets/models/rocks.dds");   //load texture
+    //res = loadOBJ("assets/models/ap_rocks.obj", parsedObjects);
+    //parsedObjects[2].texture = loadDDS("assets/models/rocks.dds");   //load texture
 }
 
 void Application::loadShaders() {
@@ -233,7 +233,7 @@ void Application::createNodes() {
     //ObjLoader:
     nodes.insert(std::make_pair("obj0", std::make_shared<SimpleMesh>(createParsedObjectNode(0))));
     nodes.insert(std::make_pair("obj1", std::make_shared<SimpleMesh>(createParsedObjectNode(1))));
-    nodes.insert(std::make_pair("obj2", std::make_shared<SimpleMesh>(createParsedObjectNode(2))));
+    //nodes.insert(std::make_pair("obj2", std::make_shared<SimpleMesh>(createParsedObjectNode(2))));
 }
 
 void Application::mouse_callback(GLFWwindow *window, double xpos, double ypos) {
