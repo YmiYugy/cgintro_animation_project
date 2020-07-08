@@ -4,6 +4,3 @@
 [submodule "project/third_party/glm"]
 	path = project/third_party/glm
 	url = https://github.com/g-truc/glm.git
-[submodule "project/third_party/assimp"]
-	path = project/third_party/assimp
-	url = https://github.com/assimp/assimp.git
