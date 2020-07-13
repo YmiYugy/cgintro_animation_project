@@ -21,9 +21,9 @@ Scene::Scene() {
     registry.set<Camera>(registry);
     registry.set<CameraController>();
 
-    auto wood_towerobj = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("wooden_watch_tower2.obj"),
-                                                         std::filesystem::path("assets/models/wooden_watch_tower2.obj"));
-    auto wood_tower = modelCache.load<ModelLoader>(entt::hashed_string("wooden_watch_tower2.obj"), wood_towerobj, 0, *this)->instantiate(*this).first[0];
+    auto vikingobj = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("viking.obj"),
+                                                         std::filesystem::path("assets/models/viking.obj"));
+    auto viking = modelCache.load<ModelLoader>(entt::hashed_string("viking.obj"), vikingobj, 0, *this)->instantiate(*this).first[0];
 
     auto cube = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("texturedCube.obj"),
                                                        std::filesystem::path("assets/models/texturedCube.obj"));
@@ -48,12 +48,14 @@ Scene::Scene() {
         }
         registry.emplace<Transform>(entity);
         registry.emplace<Collidable>(entity);
+        //registry.emplace<Wireframe>(entity);
     });
 
-    registry.get<Transform>(cubeMesh).scale *= 50;
+    registry.get<Transform>(cubeMesh).scale *= 10;
+    registry.get<Transform>(cubeMesh).translation += glm::vec3(0.0f, 0.9, 0.0);
     //registry.remove<Renderable>(cubeMesh);
 
-    registry.get<Transform>(wood_tower).scale *= 10;
+    registry.get<Transform>(viking).scale *= 10.0;
 
 
     {
@@ -77,7 +79,7 @@ Scene::Scene() {
                                           VertexAttribute::texturedVertices(meshBuffers.indices, meshBuffers.vertices));
         registry.emplace<Instanced>(boids);
 
-        auto &boidsData = registry.emplace<Boids>(boids, 32 * 10, glm::vec3(0, 20 ,0), 10.0f, 1.0f);
+        auto &boidsData = registry.emplace<Boids>(boids, 32 * 50, glm::vec3(0, 10 ,0), 5.0f, 1.0f);
         auto &boidBuffers = registry.emplace<BoidBuffers>(boids);
         boidBuffers.boid_buffer1 = Buffer(boidsData.boids.data(), boidsData.boids.size() * sizeof(Boid),
                                           GL_STATIC_DRAW);
@@ -95,7 +97,7 @@ Scene::Scene() {
         collisionObjects = coll;
         auto &collisionObjectsBuffer = registry.emplace<CollisionEnvironmentObjectsBuffer>(boids, collisionObjects);
 
-        auto &samples = registry.emplace<SamplePoints>(boids, 100);
+        auto &samples = registry.emplace<SamplePoints>(boids, 200);
         auto &samplesBuffer = registry.emplace<SamplePointsBuffer>(boids, samples);
 
         auto &simParam = registry.emplace<BoidSimulationParameters>(boids);
@@ -185,6 +187,11 @@ void Scene::render() {
         vao.bind();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, mat->diffuseTexture->texture);
+        if(registry.has<Wireframe>(entity)) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        } else {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
         glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, nullptr);
     }
 
@@ -196,6 +203,11 @@ void Scene::render() {
                 vao.bind();
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, mat->diffuseTexture->texture);
+                if(registry.has<Wireframe>(entity)) {
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                } else {
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                }
                 glDrawElementsInstanced(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, nullptr,
                                         boids.boids.size());
             });

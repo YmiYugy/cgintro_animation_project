@@ -8,8 +8,8 @@
 #include "Prototypes.h"
 
 struct Camera {
-    glm::vec3 eye = glm::vec3(0.0, 30.0, 30.0);
-    glm::vec3 target = glm::vec3(0.0, 20.0, 0.0);
+    glm::vec3 eye = glm::vec3(0.0, 10.0, 10.0);
+    glm::vec3 target = glm::vec3(0.0, 5.0, 0.0);
     glm::vec3 up = glm::vec3(0.0, 1.0, 0.0);
 
     float fovy = 45.0;

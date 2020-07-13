@@ -11,15 +11,15 @@
 
 struct BoidSimulationParameters {
     float max_steer_force = 5;
-    float max_speed = 10.0;
-    float min_speed = 6.0;
-    float view_radius = 5.0;
+    float max_speed = 6.0;
+    float min_speed = 2.0;
+    float view_radius = 2.5;
     float avoid_radius = 1.0;
-    float align_weight = 4;
-    float cohesion_weight = 4;
-    float separate_weight = 6;
+    float align_weight = 1;
+    float cohesion_weight = 1;
+    float separate_weight = 1;
     float collisions_avoid_dst = 2.5;
-    float avoid_collision_weight = 20;
+    float avoid_collision_weight = 10;
     float collision_avoid_force_dst = 0.2;
     float padding = 0.0;
 };

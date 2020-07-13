@@ -46,5 +46,9 @@ struct Instanced {
 
 };
 
+struct Wireframe {
+
+};
+
 
 #endif //UNDERWATER_WORLD_MESH_H

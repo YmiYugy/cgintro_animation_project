@@ -248,15 +248,13 @@ void main() {
                     }
                 }
                 if (!collide) {
-                    //                    if (dist < collision_avoid_force_dst * collision_avoid_force_dst) {
-                    //                        vel = length(vel) * sampleDir;
-                    //                        break;
-                    //                    } else {
-                    //                        vel += delta * avoid_collision_weight * steer_towards(sampleDir, vel);
-                    //                        break;
-                    //                    }
-                    vel += delta * avoid_collision_weight * steer_towards(sampleDir, vel);
-                    break;
+                    if (dist < dot(vel, vel) * delta * delta) {
+                        vel = length(vel) * sampleDir;
+                        break;
+                    } else {
+                        vel += delta * avoid_collision_weight * steer_towards(sampleDir, vel);
+                        break;
+                    }
                 }
             }
         }
