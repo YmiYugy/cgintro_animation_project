@@ -6,7 +6,7 @@
 #include "WindowAbstraction.h"
 
 glm::mat4 Camera::projection_matrix() const  {
-    return glm::perspective(fovy, aspect, zNear, zFar) * glm::lookAt(eye, target, up);
+    return glm::perspective(glm::radians(fovy), aspect, zNear, zFar) * glm::lookAt(eye, target, up);
 }
 
 Camera::Camera(const entt::registry &registry)  {

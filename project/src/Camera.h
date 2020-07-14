@@ -12,7 +12,7 @@ struct Camera {
     glm::vec3 target = glm::vec3(0.0, 5.0, 0.0);
     glm::vec3 up = glm::vec3(0.0, 1.0, 0.0);
 
-    float fovy = 45.0;
+    float fovy = 90.0;
     float aspect = 1.0;
     float zNear = 0.1;
     float zFar = 200.0;

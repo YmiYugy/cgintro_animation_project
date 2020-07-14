@@ -11,13 +11,13 @@
 struct SamplePoints {
     std::vector<glm::vec4> points;
 
-    SamplePoints(GLuint num_pts);
+    explicit SamplePoints(GLuint num_pts);
 
     void updateUniforms(ComputeShader shader);
 };
 
 struct SamplePointsBuffer : public Buffer {
-    SamplePointsBuffer(SamplePoints points);
+    explicit SamplePointsBuffer(SamplePoints points);
 };
 
 

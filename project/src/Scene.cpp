@@ -21,14 +21,16 @@ Scene::Scene() {
     registry.set<Camera>(registry);
     registry.set<CameraController>();
 
-    auto vikingobj = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("viking.obj"),
-                                                         std::filesystem::path("assets/models/viking.obj"));
-    auto viking = modelCache.load<ModelLoader>(entt::hashed_string("viking.obj"), vikingobj, 0, *this)->instantiate(*this).first[0];
+    auto towerobj = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("wooden_watch_tower2.obj"),
+                                                         std::filesystem::path("assets/models/wooden_watch_tower2.obj"));
+    auto tower = modelCache.load<ModelLoader>(entt::hashed_string("wooden_watch_tower2.obj"), towerobj, 0, *this)->instantiate(*this).first[0];
 
     auto cube = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("texturedCube.obj"),
                                                        std::filesystem::path("assets/models/texturedCube.obj"));
     auto cubeMesh = modelCache.load<ModelLoader>(entt::hashed_string("texturedCube.obj"), cube, 0, *this)->instantiate(
             *this).first[0];
+    modelCache.load<ModelLoader>(entt::hashed_string("texturedCube.obj"), cube, 0, *this)->instantiate(
+            *this);
 
     renderShaderCache.load<RenderShaderLoader>(entt::hashed_string("forward_model"),
                                                "assets/shaders/forward_model.vert",
@@ -51,11 +53,12 @@ Scene::Scene() {
         //registry.emplace<Wireframe>(entity);
     });
 
-    registry.get<Transform>(cubeMesh).scale *= 10;
+    registry.get<Transform>(cubeMesh).scale *= glm::vec3(8.0, 12.0, 8.0);
     registry.get<Transform>(cubeMesh).translation += glm::vec3(0.0f, 0.9, 0.0);
-    //registry.remove<Renderable>(cubeMesh);
+    registry.remove<Renderable>(cubeMesh);
 
-    registry.get<Transform>(viking).scale *= 10.0;
+    registry.get<Transform>(tower).scale *= 2.0;
+    //registry.remove<Collidable>(tower);
 
 
     {
@@ -79,7 +82,7 @@ Scene::Scene() {
                                           VertexAttribute::texturedVertices(meshBuffers.indices, meshBuffers.vertices));
         registry.emplace<Instanced>(boids);
 
-        auto &boidsData = registry.emplace<Boids>(boids, 32 * 50, glm::vec3(0, 10 ,0), 5.0f, 1.0f);
+        auto &boidsData = registry.emplace<Boids>(boids, 128 * 75, glm::vec3(0, 10 ,0), 5.0f, 3.0f);
         auto &boidBuffers = registry.emplace<BoidBuffers>(boids);
         boidBuffers.boid_buffer1 = Buffer(boidsData.boids.data(), boidsData.boids.size() * sizeof(Boid),
                                           GL_STATIC_DRAW);
@@ -97,7 +100,7 @@ Scene::Scene() {
         collisionObjects = coll;
         auto &collisionObjectsBuffer = registry.emplace<CollisionEnvironmentObjectsBuffer>(boids, collisionObjects);
 
-        auto &samples = registry.emplace<SamplePoints>(boids, 200);
+        auto &samples = registry.emplace<SamplePoints>(boids, 25);
         auto &samplesBuffer = registry.emplace<SamplePointsBuffer>(boids, samples);
 
         auto &simParam = registry.emplace<BoidSimulationParameters>(boids);
@@ -111,7 +114,7 @@ Scene::Scene() {
                                                                                             "assets/shaders/boids.comp"));
     }
 
-    lastFrame = glfwGetTime();
+    lastFrame = static_cast<float>(glfwGetTime());
 }
 
 void Scene::run() {
@@ -123,7 +126,7 @@ void Scene::run() {
 }
 
 void Scene::update() {
-    float now = glfwGetTime();
+    auto now = static_cast<float>(glfwGetTime());
     float delta = now - lastFrame;
     lastFrame = now;
 
@@ -137,6 +140,9 @@ void Scene::update() {
     renderShaderCache.each([&](RenderShader &shader) {
         shader.use();
         shader.setMat4("projectionView", projView);
+        shader.setVec3("CameraEye", registry.ctx<Camera>().eye);
+        shader.setVec4("LightColor", glm::vec4(194.0/255.0, 229.0/255.0, 237.0/255.0, 1.0));
+        shader.setVec3("LightPos", glm::vec3(3.0, 25.0, 8.0));
     });
 
     registry.view<Boids, BoidBuffers, CollisionEnvironmentObjects, CollisionEnvironmentObjectsBuffer,
@@ -149,7 +155,7 @@ void Scene::update() {
                       entt::resource_handle<ComputeShader> &computeShader,
                       entt::resource_handle<RenderShader> &shader, VertexAttribute &vao) {
                 computeShader->use();
-                computeShader->setFloat("delta", 0.016);
+                computeShader->setFloat("delta", delta);
                 boids.updateUniforms(computeShader);
                 collEnvObjs.updateUniforms(computeShader);
                 samples.updateUniforms(computeShader);
@@ -160,7 +166,7 @@ void Scene::update() {
                 collEnvObjBuffers.bind(computeShader, 4);
                 glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, sampleBuffer.buffer);
                 simParamBuffer.bind(computeShader, 0);
-                glDispatchCompute(boids.boids.size() / 32, 1, 1);
+                glDispatchCompute(boids.boids.size() / 128, 1, 1);
                 glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
                 glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
                 std::swap(boidBuffers.boid_buffer1, boidBuffers.boid_buffer2);
@@ -171,7 +177,7 @@ void Scene::update() {
 }
 
 void Scene::render() {
-    glClearColor(0.1, 0.1, 0.1, 1.0);
+    glClearColor(2.0/255.0, 123.0/255.0, 150.0/255.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for (auto entity : registry.view<entt::resource_handle<RenderShader>, Transform, VertexAttribute, TexturedMesh, entt::resource_handle<TextureMaterial>, Renderable>(
@@ -189,6 +195,7 @@ void Scene::render() {
         glBindTexture(GL_TEXTURE_2D, mat->diffuseTexture->texture);
         if(registry.has<Wireframe>(entity)) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glLineWidth(2.0);
         } else {
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }

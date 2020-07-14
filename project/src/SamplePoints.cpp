@@ -38,10 +38,9 @@ SamplePoints::SamplePoints(GLuint num_pts) {
         z[i] = cosf(theta[i]) * sinf(phi[i]);
     }
 
-    points = std::vector<glm::vec4> (num_pts + 1);
-    points[0] = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    points = std::vector<glm::vec4> (num_pts);
     for (size_t i = 0; i < num_pts; i++) {
-        points[i + 1] = glm::vec4(x[i], y[i], z[i], 1.0f);
+        points[i] = glm::vec4(x[i], y[i], z[i], 1.0f);
     }
 }
 
@@ -50,5 +49,5 @@ void SamplePoints::updateUniforms(ComputeShader shader) {
     shader.setUint("sample_count", points.size());
 }
 
-SamplePointsBuffer::SamplePointsBuffer(SamplePoints points) : Buffer(points.points.data(), points.points.size() * sizeof(GLuint), GL_STATIC_DRAW) {
+SamplePointsBuffer::SamplePointsBuffer(SamplePoints points) : Buffer(points.points.data(), points.points.size() * sizeof(glm::vec4), GL_STATIC_DRAW) {
 }
