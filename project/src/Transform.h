@@ -1,6 +1,3 @@
-//
-// Created by trist on 08/07/2020.
-//
 
 #ifndef UNDERWATER_WORLD_TRANSFORM_H
 #define UNDERWATER_WORLD_TRANSFORM_H

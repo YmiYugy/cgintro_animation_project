@@ -1,6 +1,3 @@
-//
-// Created by trist on 08/07/2020.
-//
 
 #include "Texture.h"
 #define STB_IMAGE_IMPLEMENTATION
