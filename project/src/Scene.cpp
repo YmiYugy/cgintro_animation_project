@@ -80,9 +80,10 @@ Scene::Scene() {
 
 
     {
-        auto boids = modelCache.load<ModelLoader>(entt::hashed_string("cone.obj"),
+        auto boids = modelCache.load<ModelLoader>(entt::hashed_string("fisch.obj"),
                                                   objectFileCache.load<ObjectFileLoader>(
-                                                          entt::hashed_string("cone.obj"), "assets/models/cone.obj"), 0,
+                                                          entt::hashed_string("fisch.obj"), "assets/models/fisch.obj"),
+                                                  0,
                                                   *this)->instantiate(*this).first[0];
         auto shader = renderShaderCache.load<RenderShaderLoader>(entt::hashed_string("forward_boid"),
                                                                  "assets/shaders/forward_boids.vert",
@@ -93,7 +94,7 @@ Scene::Scene() {
                 "assets/shaders/shadow_boids.vert",
                 "assets/shaders/shadow_boids.frag"));
         auto &transform = registry.emplace<Transform>(boids);
-        transform.scale *= 0.1;
+        transform.scale *= 0.2;
         transform.rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         auto &mesh = registry.get<TexturedMesh>(boids);
         auto &meshBuffers = registry.emplace<RenderMeshBuffers>(boids);
@@ -104,7 +105,7 @@ Scene::Scene() {
                                           VertexAttribute::texturedVertices(meshBuffers.indices, meshBuffers.vertices));
         registry.emplace<Instanced>(boids);
 
-        auto &boidsData = registry.emplace<Boids>(boids, boids_per_thread * 128, glm::vec3(0, 10, 0), 5.0f, 3.0f);
+        auto &boidsData = registry.emplace<Boids>(boids, boids_per_thread * 48, glm::vec3(0, 10, 0), 5.0f, 3.0f);
         auto &boidBuffers = registry.emplace<BoidBuffers>(boids);
         boidBuffers.boid_buffer1 = Buffer(boidsData.boids.data(), boidsData.boids.size() * sizeof(Boid),
                                           GL_STATIC_DRAW);
