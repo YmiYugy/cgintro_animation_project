@@ -10,7 +10,6 @@
 #include "SamplePoints.h"
 #include "Boids.h"
 #include "BoidsSimulationParameters.h"
-#include "Light.h"
 
 Scene::Scene() {
     std::srand(std::time(nullptr));
@@ -18,29 +17,24 @@ Scene::Scene() {
     registry.set<WindowAbstraction>(1200, 1000, "Underwater World", registry);
     registry.set<Camera>(registry);
     registry.set<CameraController>();
-    registry.set<Light>(Light{
-            .dir = glm::vec3(-0.2f, -1.0f, -0.3f),
-            .ambient = glm::vec3(2.0 / 255.0, 123.0 / 255.0, 150.0 / 255.0),
-            .diffuse = glm::vec3(194.0 / 255.0, 229.0 / 255.0, 237.0 / 255.0),
-            .specular = glm::vec3(1.0)
-    });
 
     auto rocks = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("rock_formation.obj"),
-                                                        std::filesystem::path("assets/models/rock_formation.obj"));
-    auto rocksMesh = modelCache.load<ModelLoader>(entt::hashed_string("rock_formation.obj"), rocks, 0,
-                                                  *this)->instantiate(*this).first[0];
+        std::filesystem::path("assets/models/rock_formation.obj"));
+    auto rocksMesh = modelCache.load<ModelLoader>(entt::hashed_string("rock_formation.obj"), rocks, 0, *this)->instantiate(*this).first[0];
 
-    auto towerobj = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("wooden_watch_tower2.obj"),
-                                                           std::filesystem::path(
-                                                                   "assets/models/wooden_watch_tower2.obj"));
-    auto tower = modelCache.load<ModelLoader>(entt::hashed_string("wooden_watch_tower2.obj"), towerobj, 0,
-                                              *this)->instantiate(*this).first[0];
+    auto ship = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("ship.obj"),
+        std::filesystem::path("assets/models/ship.obj"));
+    auto shipMesh = modelCache.load<ModelLoader>(entt::hashed_string("ship.obj"), ship, 0, *this)->instantiate(*this).first[0];
+    
+    auto corals = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("coral_2d_formation.obj"),
+        std::filesystem::path("assets/models/coral_2d_formation.obj"));
+    auto coralsMesh = modelCache.load<ModelLoader>(entt::hashed_string("coral_2d_formation.obj"), corals, 0, *this)->instantiate(*this).first[0];
 
-    auto cube = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("texturedCube.obj"),
-                                                       std::filesystem::path("assets/models/texturedCube.obj"));
-    auto cubeMesh = modelCache.load<ModelLoader>(entt::hashed_string("texturedCube.obj"), cube, 0, *this)->instantiate(
+    auto cube = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("ground.obj"),
+                                                       std::filesystem::path("assets/models/ground.obj"));
+    auto cubeMesh = modelCache.load<ModelLoader>(entt::hashed_string("ground.obj"), cube, 0, *this)->instantiate(
             *this).first[0];
-    modelCache.load<ModelLoader>(entt::hashed_string("texturedCube.obj"), cube, 0, *this)->instantiate(
+    modelCache.load<ModelLoader>(entt::hashed_string("ground.obj"), cube, 0, *this)->instantiate(
             *this);
 
     renderShaderCache.load<RenderShaderLoader>(entt::hashed_string("forward_model"),
@@ -93,12 +87,11 @@ Scene::Scene() {
                                           VertexAttribute::texturedVertices(meshBuffers.indices, meshBuffers.vertices));
         registry.emplace<Instanced>(boids);
 
-        auto &boidsData = registry.emplace<Boids>(boids, 128 * 75, glm::vec3(0, 10, 0), 5.0f, 3.0f);
+        auto &boidsData = registry.emplace<Boids>(boids, 128 * 75, glm::vec3(0, 10 ,0), 5.0f, 3.0f);
         auto &boidBuffers = registry.emplace<BoidBuffers>(boids);
         boidBuffers.boid_buffer1 = Buffer(boidsData.boids.data(), boidsData.boids.size() * sizeof(Boid),
                                           GL_STATIC_DRAW);
-        boidBuffers.boid_buffer2 = Buffer(boidsData.boids.data(), boidsData.boids.size() * sizeof(Boid),
-                                          GL_STATIC_DRAW);
+        boidBuffers.boid_buffer2 = Buffer(boidsData.boids.data(), boidsData.boids.size() * sizeof(Boid), GL_STATIC_DRAW);
 
         auto[envMesh, coll] = CollisionMesh::fromCollidables(registry);
         auto &collisionMesh = registry.emplace<CollisionMesh>(boids);
@@ -120,22 +113,10 @@ Scene::Scene() {
 
 
         auto &computeShader = registry.emplace<entt::resource_handle<ComputeShader>>(boids,
-                                                                                     computeShaderCache.load<ComputeShaderLoader>(
-                                                                                             entt::hashed_string(
-                                                                                                     "boids_compute"),
-                                                                                             "assets/shaders/boids.comp"));
-    }
-
-    {
-        const GLuint shadowMapWidth = 1024, shadowMapHeight = 1024;
-        glGenFramebuffers(1, &depthFBO);
-        glBindFramebuffer(GL_FRAMEBUFFER, depthFBO);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
-                               textureCache.load<DepthTextureLoader>(entt::hashed_string("shadow_map"), shadowMapWidth,
-                                                                     shadowMapHeight)->texture, 0);
-        glDrawBuffer(GL_NONE);
-        glReadBuffer(GL_NONE);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                                                                                    computeShaderCache.load<ComputeShaderLoader>(
+                                                                                            entt::hashed_string(
+                                                                                                    "boids_compute"),
+                                                                                            "assets/shaders/boids.comp"));
     }
 
     lastFrame = static_cast<float>(glfwGetTime());
@@ -160,6 +141,14 @@ void Scene::update() {
 
     registry.ctx<CameraController>().update(delta, *this);
 
+    glm::mat4 projView = registry.ctx<Camera>().projection_matrix();
+    renderShaderCache.each([&](RenderShader &shader) {
+        shader.use();
+        shader.setMat4("projectionView", projView);
+        shader.setVec3("CameraEye", registry.ctx<Camera>().eye);
+        shader.setVec4("LightColor", glm::vec4(194.0/255.0, 229.0/255.0, 237.0/255.0, 1.0));
+        shader.setVec3("LightPos", glm::vec3(3.0, 25.0, 8.0));
+    });
 
     registry.view<Boids, BoidBuffers, CollisionEnvironmentObjects, CollisionEnvironmentObjectsBuffer,
                     CollisionMeshBuffers, SamplePoints, SamplePointsBuffer, BoidsSimulationParametersBuffer,
@@ -183,8 +172,8 @@ void Scene::update() {
                 glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, sampleBuffer.buffer);
                 simParamBuffer.bind(computeShader, 0);
                 glDispatchCompute(boids.boids.size() / 128, 1, 1);
-                //glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-                //glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
+                glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+                glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
                 std::swap(boidBuffers.boid_buffer1, boidBuffers.boid_buffer2);
 
                 shader->use();
@@ -193,48 +182,46 @@ void Scene::update() {
 }
 
 void Scene::render() {
-    glm::mat4 projView = registry.ctx<Camera>().projection_matrix();
-    renderShaderCache.each([&](RenderShader &shader) {
-        shader.use();
-        shader.setMat4("projectionView", projView);
-        shader.setVec3("cameraEye", registry.ctx<Camera>().eye);
-        registry.ctx<Light>().updateUniforms(shader);
-    });
-
-
-    glm::vec3 clearColor = registry.ctx<Light>().ambient;
-    glClearColor(clearColor[0], clearColor[1], clearColor[2], 1.0);
+    glClearColor(2.0/255.0, 123.0/255.0, 150.0/255.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    registry.view<entt::resource_handle<RenderShader>, Transform, VertexAttribute, Renderable>()
-            .each([&](auto entity, auto &shader, auto &transform, auto &vao) {
-                GLuint index_count = static_cast<GLuint>(registry.has<TexturedMesh>(entity) ?
-                                                         registry.get<TexturedMesh>(entity).indices.size() :
-                                                         (registry.has<ColoredMesh>(entity) ?
-                                                          registry.get<ColoredMesh>(entity).indices.size() : 0));
+    for (auto entity : registry.view<entt::resource_handle<RenderShader>, Transform, VertexAttribute, TexturedMesh, entt::resource_handle<TextureMaterial>, Renderable>(
+            entt::exclude<Instanced>)) {
+        auto &shader = registry.get<entt::resource_handle<RenderShader>>(entity);
+        auto &transform = registry.get<Transform>(entity);
+        auto &vao = registry.get<VertexAttribute>(entity);
+        auto &mesh = registry.get<TexturedMesh>(entity);
+        auto &mat = registry.get<entt::resource_handle<TextureMaterial>>(entity);
+        glEnable(GL_DEPTH_TEST);
+        shader->use();
+        shader->setMat4("model", transform.toMat4());
+        vao.bind();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, mat->diffuseTexture->texture);
+        if(registry.has<Wireframe>(entity)) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glLineWidth(2.0);
+        } else {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+        glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, nullptr);
+    }
 
+    registry.view<entt::resource_handle<RenderShader>, Transform, VertexAttribute, TexturedMesh, entt::resource_handle<TextureMaterial>, Boids, Renderable, Instanced>()
+            .each([&](auto entity, auto &shader, auto &transform, auto &vao, auto &mesh, auto &mat, auto &boids) {
                 glEnable(GL_DEPTH_TEST);
                 shader->use();
                 shader->setMat4("model", transform.toMat4());
-                shader->setMat4("normalModel", glm::transpose(glm::inverse(transform.toMat4())));
                 vao.bind();
-                if (registry.has<entt::resource_handle<TextureMaterial>>(entity)) {
-                    auto &mat = registry.get<entt::resource_handle<TextureMaterial>>(entity);
-                    mat->updateUniforms(shader);
-                    glActiveTexture(GL_TEXTURE0);
-                    glBindTexture(GL_TEXTURE_2D, mat->diffuseTexture->texture);
-                }
-                if (registry.has<Wireframe>(entity)) {
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, mat->diffuseTexture->texture);
+                if(registry.has<Wireframe>(entity)) {
                     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                 } else {
                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                 }
-                if (registry.has<Instanced>(entity) && registry.has<Boids>(entity)) {
-                    glDrawElementsInstanced(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr,
-                                            registry.get<Boids>(entity).boids.size());
-                } else {
-                    glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
-                }
+                glDrawElementsInstanced(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, nullptr,
+                                        boids.boids.size());
             });
 
     glfwSwapBuffers(registry.ctx<WindowAbstraction>().window);

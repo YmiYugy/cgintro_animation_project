@@ -114,15 +114,4 @@ std::shared_ptr<ComputeShader> ComputeShaderLoader::load(const std::filesystem::
             linkShader(std::vector<GLuint>{compileShader(loadFile(sh.generic_string()), GL_COMPUTE_SHADER)})});
 }
 
-std::shared_ptr<DepthShader> DepthShaderLoader::load(const std::filesystem::path &vs, const std::filesystem::path &fs) {
-    std::vector<GLuint> modules(2);
-    modules[0] = compileShader(loadFile(vs.generic_string()), GL_VERTEX_SHADER);
-    modules[1] = compileShader(loadFile(fs.generic_string()), GL_FRAGMENT_SHADER);
 
-    GLuint program = linkShader(modules);
-
-    glDeleteShader(modules[0]);
-    glDeleteShader(modules[1]);
-
-    return std::make_shared<DepthShader>(DepthShader{program});
-}

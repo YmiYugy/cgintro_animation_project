@@ -11,7 +11,6 @@
 struct Scene {
 
     Scene();
-
     void run();
 
     entt::registry registry;
@@ -20,17 +19,13 @@ struct Scene {
     ColorMaterialCache colorMaterialCache;
     ObjectFileCache objectFileCache;
     ModelCache modelCache;
-    RenderShaderCache renderShaderCache;
-    DepthShaderCache depthShaderCache;
+    RendershaderCache renderShaderCache;
     ComputeShaderCache computeShaderCache;
-
-    GLuint depthFBO;
 
 private:
     float lastFrame;
 
     void update();
-
     void render();
 };
 

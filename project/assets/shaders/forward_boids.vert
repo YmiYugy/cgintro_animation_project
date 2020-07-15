@@ -11,7 +11,6 @@ out vec4 Position;
 out vec4 Normal;
 
 uniform mat4 model;
-uniform mat4 normalModel;
 uniform mat4 projectionView;
 
 #define eps 0.005
@@ -61,5 +60,5 @@ void main()
     gl_Position = projectionView * pos;
     TexCoord = aTexCoord;
     Position = pos;
-    Normal = normalModel * aNormal;
+    Normal = mat4(transpose(inverse(model))) * aNormal;
 }

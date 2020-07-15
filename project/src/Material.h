@@ -6,10 +6,6 @@
 
 struct TextureMaterial {
     entt::resource_handle<Texture> diffuseTexture;
-    glm::vec3 specular;
-    float shininess;
-
-    void updateUniforms(RenderShader shader) const;
 };
 
 struct TextureMaterialLoader final : entt::resource_loader<TextureMaterialLoader, TextureMaterial> {

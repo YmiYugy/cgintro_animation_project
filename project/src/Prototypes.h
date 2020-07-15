@@ -53,7 +53,6 @@ class Model;
 class ModelLoader;
 struct Name;
 struct Shader;
-struct RenderShader;
 struct RenderShaderLoader;
 struct Scene;
 struct Texture;

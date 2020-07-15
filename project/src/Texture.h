@@ -12,14 +12,11 @@ struct Texture {
     int height;
 };
 
-struct TextureLoader final : entt::resource_loader<TextureLoader, Texture> {
-    static std::shared_ptr<Texture> load(const std::filesystem::path &path);
-};
-
-struct DepthTextureLoader final : entt::resource_loader<DepthTextureLoader, Texture> {
-    static std::shared_ptr<Texture> load(GLuint width, GLuint height);
+struct TextureLoader final: entt::resource_loader<TextureLoader, Texture> {
+    std::shared_ptr<Texture> load(const std::filesystem::path& path) const;
 };
 
 using TextureCache = entt::resource_cache<Texture>;
+
 
 #endif //UNDERWATER_WORLD_TEXTURE_H
