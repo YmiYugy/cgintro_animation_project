@@ -18,15 +18,23 @@ Scene::Scene() {
     registry.set<Camera>(registry);
     registry.set<CameraController>();
 
-    auto towerobj = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("wooden_watch_tower2.obj"),
-                                                         std::filesystem::path("assets/models/wooden_watch_tower2.obj"));
-    auto tower = modelCache.load<ModelLoader>(entt::hashed_string("wooden_watch_tower2.obj"), towerobj, 0, *this)->instantiate(*this).first[0];
+    auto rocks = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("rock_formation.obj"),
+        std::filesystem::path("assets/models/rock_formation.obj"));
+    auto rocksMesh = modelCache.load<ModelLoader>(entt::hashed_string("rock_formation.obj"), rocks, 0, *this)->instantiate(*this).first[0];
 
-    auto cube = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("texturedCube.obj"),
-                                                       std::filesystem::path("assets/models/texturedCube.obj"));
-    auto cubeMesh = modelCache.load<ModelLoader>(entt::hashed_string("texturedCube.obj"), cube, 0, *this)->instantiate(
+    auto ship = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("ship.obj"),
+        std::filesystem::path("assets/models/ship.obj"));
+    auto shipMesh = modelCache.load<ModelLoader>(entt::hashed_string("ship.obj"), ship, 0, *this)->instantiate(*this).first[0];
+    
+    auto corals = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("coral_2d_formation.obj"),
+        std::filesystem::path("assets/models/coral_2d_formation.obj"));
+    auto coralsMesh = modelCache.load<ModelLoader>(entt::hashed_string("coral_2d_formation.obj"), corals, 0, *this)->instantiate(*this).first[0];
+
+    auto cube = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("ground.obj"),
+                                                       std::filesystem::path("assets/models/ground.obj"));
+    auto cubeMesh = modelCache.load<ModelLoader>(entt::hashed_string("ground.obj"), cube, 0, *this)->instantiate(
             *this).first[0];
-    modelCache.load<ModelLoader>(entt::hashed_string("texturedCube.obj"), cube, 0, *this)->instantiate(
+    modelCache.load<ModelLoader>(entt::hashed_string("ground.obj"), cube, 0, *this)->instantiate(
             *this);
 
     renderShaderCache.load<RenderShaderLoader>(entt::hashed_string("forward_model"),
