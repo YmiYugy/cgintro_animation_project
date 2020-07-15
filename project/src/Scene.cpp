@@ -22,7 +22,7 @@ Scene::Scene() {
             .dir = glm::vec3(-0.2f, -1.0f, -0.3f),
             .ambient = glm::vec3(2.0 / 255.0, 123.0 / 255.0, 150.0 / 255.0),
             .diffuse = glm::vec3(194.0 / 255.0, 229.0 / 255.0, 237.0 / 255.0),
-            .specular = glm::vec3(1.0)
+            .specular = glm::vec3(0.5)
     });
 
     auto rocks = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("rock_formation.obj"),

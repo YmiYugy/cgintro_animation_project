@@ -72,7 +72,7 @@ void main()
 
     vec3 viewDir = normalize(cameraEye - Position.xyz);
     vec3 halfwayDir = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), 2);
     vec3 specular = light.specular * spec;
 
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
