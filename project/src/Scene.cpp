@@ -104,7 +104,7 @@ Scene::Scene() {
                                           VertexAttribute::texturedVertices(meshBuffers.indices, meshBuffers.vertices));
         registry.emplace<Instanced>(boids);
 
-        auto &boidsData = registry.emplace<Boids>(boids, 128 * 40, glm::vec3(0, 10, 0), 5.0f, 3.0f);
+        auto &boidsData = registry.emplace<Boids>(boids, boids_per_thread * 128, glm::vec3(0, 10, 0), 5.0f, 3.0f);
         auto &boidBuffers = registry.emplace<BoidBuffers>(boids);
         boidBuffers.boid_buffer1 = Buffer(boidsData.boids.data(), boidsData.boids.size() * sizeof(Boid),
                                           GL_STATIC_DRAW);
@@ -193,7 +193,7 @@ void Scene::update() {
                 collEnvObjBuffers.bind(computeShader, 4);
                 glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, sampleBuffer.buffer);
                 simParamBuffer.bind(computeShader, 0);
-                glDispatchCompute(boids.boids.size() / 128, 1, 1);
+                glDispatchCompute(boids.boids.size() / boids_per_thread, 1, 1);
                 //glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
                 //glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
                 std::swap(boidBuffers.boid_buffer1, boidBuffers.boid_buffer2);

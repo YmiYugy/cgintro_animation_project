@@ -5,6 +5,8 @@
 #include "Prototypes.h"
 #include "Buffer.h"
 
+const GLuint boids_per_thread = 64;
+
 struct Boid {
     glm::vec4 pos{};
     glm::vec4 dir{};
