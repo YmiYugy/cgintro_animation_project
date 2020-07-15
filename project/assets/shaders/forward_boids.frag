@@ -41,9 +41,19 @@ float alpha_fog() {
 float calculate_shadow(vec4 posLightSpace, float bias) {
     vec3 projCoords = posLightSpace.xyz / posLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
-    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    if (projCoords.z > 1.0) {
+        return 0.0;
+    }
     float currentDepth = projCoords.z;
-    float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+    float shadow = 0.0;
+    vec2 texSize = 1.0 / textureSize(shadowMap, 0);
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            float closestDepth = texture(shadowMap, projCoords.xy + texSize * vec2(x, y)).r;
+            shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
+        }
+    }
+    shadow /= 9.0;
 
     return shadow;
 }
