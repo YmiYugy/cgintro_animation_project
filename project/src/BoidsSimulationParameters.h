@@ -14,6 +14,7 @@ struct BoidSimulationParameters {
     float avoid_radius = 1.0;
     float align_weight = 1;
     float cohesion_weight = 1;
+    float center_weight = 0.3;
     float separate_weight = 1;
     float collisions_avoid_dst = 2.5;
     float avoid_collision_weight = 10;

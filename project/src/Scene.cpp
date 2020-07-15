@@ -69,8 +69,7 @@ Scene::Scene() {
         //registry.emplace<Wireframe>(entity);
     });
 
-    registry.get<Transform>(cubeMesh).scale *= glm::vec3(8.0, 12.0, 8.0);
-    registry.get<Transform>(cubeMesh).translation += glm::vec3(0.0f, 0.9, 0.0);
+    registry.get<Transform>(cubeMesh).scale *= glm::vec3(20.0, 20.0, 20.0);
     registry.remove<Renderable>(cubeMesh);
 
 
@@ -95,7 +94,7 @@ Scene::Scene() {
                                           VertexAttribute::texturedVertices(meshBuffers.indices, meshBuffers.vertices));
         registry.emplace<Instanced>(boids);
 
-        auto &boidsData = registry.emplace<Boids>(boids, 128 * 75, glm::vec3(0, 10, 0), 5.0f, 3.0f);
+        auto &boidsData = registry.emplace<Boids>(boids, 128 * 40, glm::vec3(0, 10, 0), 5.0f, 3.0f);
         auto &boidBuffers = registry.emplace<BoidBuffers>(boids);
         boidBuffers.boid_buffer1 = Buffer(boidsData.boids.data(), boidsData.boids.size() * sizeof(Boid),
                                           GL_STATIC_DRAW);
@@ -114,7 +113,7 @@ Scene::Scene() {
         collisionObjects = coll;
         auto &collisionObjectsBuffer = registry.emplace<CollisionEnvironmentObjectsBuffer>(boids, collisionObjects);
 
-        auto &samples = registry.emplace<SamplePoints>(boids, 25);
+        auto &samples = registry.emplace<SamplePoints>(boids, 15);
         auto &samplesBuffer = registry.emplace<SamplePointsBuffer>(boids, samples);
 
         auto &simParam = registry.emplace<BoidSimulationParameters>(boids);
