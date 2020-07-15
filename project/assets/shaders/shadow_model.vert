@@ -8,5 +8,5 @@ uniform mat4 projView;
 
 
 void main() {
-    gl_Position = lightSpaceMatrix * model * aPos;
+    gl_Position = projView * model * aPos;
 }

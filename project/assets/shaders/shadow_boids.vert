@@ -7,6 +7,17 @@ layout (location = 4) in vec4 dir;
 uniform mat4 model;
 uniform mat4 projView;
 
+#define eps 0.00005
+
+vec3 orthogonal(vec3 v) {
+    float x = abs(v.x);
+    float y = abs(v.y);
+    float z = abs(v.z);
+
+    vec3 other = x < y ? (x < z ? vec3(1, 0, 0) : vec3(0, 0, 1)) : (y < z ? vec3(0, 1, 0) : vec3(0, 0, 1));
+    return cross(v, other);
+}
+
 vec4 get_rotation_between(vec3 u, vec3 v) {
     vec4 q;
     vec3 v0 = normalize(u);
@@ -38,5 +49,5 @@ vec3 rotate(vec4 quaternion, vec3 vec) {
 void main() {
     vec4 quat_rotation = get_rotation_between(vec3(1, 0, 0), dir.xyz);
     vec4 pos = vec4(rotate(quat_rotation, (model * aPos).xyz) + pos.xyz, 1.0f);
-    gl_Position = projectionView * pos;
+    gl_Position = projView * pos;
 }

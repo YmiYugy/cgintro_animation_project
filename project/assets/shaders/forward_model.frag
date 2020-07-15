@@ -5,6 +5,7 @@ out vec4 FragColor;
 in vec2 TexCoord;
 in vec4 Normal;
 in vec4 Position;
+in vec4 FragPosLightSpace;
 
 
 struct Material {
@@ -22,32 +23,9 @@ struct Light {
 
 uniform Light light;
 uniform Material material;
-uniform sampler2D texture1;
+uniform sampler2D diffuseTexture;
+uniform sampler2D shadowMap;
 uniform vec3 cameraEye;
-
-float map(float value, float min1, float max1, float min2, float max2) {
-    return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
-}
-
-vec4 hsva2rgba(vec4 hsva) {
-    int h = int(map(hsva[0], 0, 1, 0, 360));
-    float s = hsva[1];
-    float v = hsva[2];
-    float a = hsva[3];
-
-    int h2 = int(floor(h/60.0));
-    float f = (h/60.0-float(h2));
-    float p = v * (1 - s);
-    float q = v * (1 - s * f);
-    float t = v * (1 - s * (1 - f));
-
-    if (h2 == 1) return vec4(q, v, p, a);
-    if (h2 == 2) return vec4(p, v, t, a);
-    if (h2 == 3) return vec4(p, q, v, a);
-    if (h2 == 4) return vec4(t, p, v, a);
-    if (h2 == 5) return vec4(v, p, q, a);
-    return vec4(v, t, p, a);
-}
 
 
 float alpha_fog() {
@@ -60,24 +38,36 @@ float alpha_fog() {
     return 1 - (FogMax -d) / (FogMax - FogMin);
 }
 
+float calculate_shadow(vec4 posLightSpace, float bias) {
+    vec3 projCoords = posLightSpace.xyz / posLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+    float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+
+    return shadow;
+}
+
 void main()
 {
     float alpha = alpha_fog();
 
-    vec3 tex = texture(texture1, TexCoord).rgb;
 
-    vec3 ambient = light.ambient * tex;
-    vec3 norm = normalize(Normal.xyz);
+    vec3 tex = texture(diffuseTexture, TexCoord).rgb;
+    vec3 normal = normalize(Normal.xyz);
+
     vec3 lightDir = normalize(-light.dir);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = light.diffuse * diff * tex;
+    float diff = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = light.diffuse * diff;
 
     vec3 viewDir = normalize(cameraEye - Position.xyz);
     vec3 halfwayDir = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(norm, halfwayDir), 0.0), material.shininess);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
     vec3 specular = light.specular * spec;
 
-    vec3 finalColor = ambient + diffuse + specular;
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+    float shadow = calculate_shadow(FragPosLightSpace, bias);
+    vec3 color = (light.ambient + (1.0 - shadow) * (diffuse + specular)) * tex;
 
-    FragColor = mix(vec4(finalColor, 1.0), vec4(light.ambient, 1.0), alpha);
+    FragColor = mix(vec4(color, 1.0), vec4(light.ambient, 1.0), alpha);
 }

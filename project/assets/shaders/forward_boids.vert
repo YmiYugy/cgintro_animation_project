@@ -9,12 +9,14 @@ layout (location = 4) in vec4 dir;
 out vec2 TexCoord;
 out vec4 Position;
 out vec4 Normal;
+out vec4 FragPosLightSpace;
 
 uniform mat4 model;
 uniform mat4 normalModel;
 uniform mat4 projectionView;
+uniform mat4 lightSpace;
 
-#define eps 0.005
+#define eps 0.00005
 
 vec3 orthogonal(vec3 v) {
     float x = abs(v.x);
@@ -62,4 +64,5 @@ void main()
     TexCoord = aTexCoord;
     Position = pos;
     Normal = normalModel * aNormal;
+    FragPosLightSpace = lightSpace * pos;
 }

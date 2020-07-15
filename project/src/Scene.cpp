@@ -52,11 +52,17 @@ Scene::Scene() {
                                                "assets/shaders/forward_model.vert",
                                                "assets/shaders/forward_model.frag");
 
+    depthShaderCache.load<DepthShaderLoader>(entt::hashed_string("shadow_model"),
+                                             "assets/shaders/shadow_model.vert",
+                                             "assets/shaders/shadow_model.frag");
+
     registry.view<Renderable>().each([&](auto entity) {
         if (registry.has<TexturedMesh>(entity)) {
             TexturedMesh mesh = registry.get<TexturedMesh>(entity);
             registry.emplace<entt::resource_handle<RenderShader>>(entity, renderShaderCache.handle(
                     entt::hashed_string("forward_model")));
+            registry.emplace<entt::resource_handle<DepthShader>>(entity, depthShaderCache.handle(
+                    entt::hashed_string("shadow_model")));
             RenderMeshBuffers &meshBuffers = registry.emplace<RenderMeshBuffers>(entity);
             meshBuffers.vertices = Buffer(mesh.vertices.data(), mesh.vertices.size() * sizeof(TextureVertex),
                                           GL_STATIC_DRAW);
@@ -82,6 +88,10 @@ Scene::Scene() {
                                                                  "assets/shaders/forward_boids.vert",
                                                                  "assets/shaders/forward_boids.frag");
         registry.emplace<entt::resource_handle<RenderShader>>(boids, shader);
+        registry.emplace<entt::resource_handle<DepthShader>>(boids, depthShaderCache.load<DepthShaderLoader>(
+                entt::hashed_string("shadow_boid"),
+                "assets/shaders/shadow_boids.vert",
+                "assets/shaders/shadow_boids.frag"));
         auto &transform = registry.emplace<Transform>(boids);
         transform.scale *= 0.1;
         transform.rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -128,7 +138,7 @@ Scene::Scene() {
     }
 
     {
-        const GLuint shadowMapWidth = 1024, shadowMapHeight = 1024;
+        const GLuint shadowMapWidth = 4096, shadowMapHeight = 4096;
         glGenFramebuffers(1, &depthFBO);
         glBindFramebuffer(GL_FRAMEBUFFER, depthFBO);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
@@ -194,49 +204,106 @@ void Scene::update() {
 }
 
 void Scene::render() {
-    glm::mat4 projView = registry.ctx<Camera>().projection_matrix();
-    renderShaderCache.each([&](RenderShader &shader) {
-        shader.use();
-        shader.setMat4("projectionView", projView);
-        shader.setVec3("cameraEye", registry.ctx<Camera>().eye);
-        registry.ctx<Light>().updateUniforms(shader);
-    });
+    Light light = registry.ctx<Light>();
+    glm::mat4 lightSpace = light.shadowView(registry.ctx<Camera>().eye, 1.0f, 100.0f, -30, -30, 30, 30);
+    entt::resource_handle<Texture> depthMap = textureCache.handle(entt::hashed_string("shadow_map"));
+
+    {
+        depthShaderCache.each([&](DepthShader &shader) {
+            shader.use();
+            shader.setMat4("projView", lightSpace);
+        });
 
 
-    glm::vec3 clearColor = registry.ctx<Light>().ambient;
-    glClearColor(clearColor[0], clearColor[1], clearColor[2], 1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_CULL_FACE);
+        glViewport(0, 0, depthMap->width, depthMap->height);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthFBO);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glCullFace(GL_FRONT);
 
-    registry.view<entt::resource_handle<RenderShader>, Transform, VertexAttribute, Renderable>()
-            .each([&](auto entity, auto &shader, auto &transform, auto &vao) {
-                GLuint index_count = static_cast<GLuint>(registry.has<TexturedMesh>(entity) ?
-                                                         registry.get<TexturedMesh>(entity).indices.size() :
-                                                         (registry.has<ColoredMesh>(entity) ?
-                                                          registry.get<ColoredMesh>(entity).indices.size() : 0));
+        registry.view<entt::resource_handle<DepthShader>, Transform, VertexAttribute, Renderable>()
+                .each([&](auto entity, auto &shader, auto &transform, auto &vao) {
+                    auto index_count = static_cast<GLuint>(
+                            registry.has<TexturedMesh>(entity) ?
+                            registry.get<TexturedMesh>(entity).indices.size() :
+                            (registry.has<ColoredMesh>(entity) ?
+                             registry.get<ColoredMesh>(entity).indices.size() : 0));
 
-                glEnable(GL_DEPTH_TEST);
-                shader->use();
-                shader->setMat4("model", transform.toMat4());
-                shader->setMat4("normalModel", glm::transpose(glm::inverse(transform.toMat4())));
-                vao.bind();
-                if (registry.has<entt::resource_handle<TextureMaterial>>(entity)) {
-                    auto &mat = registry.get<entt::resource_handle<TextureMaterial>>(entity);
-                    mat->updateUniforms(shader);
-                    glActiveTexture(GL_TEXTURE0);
-                    glBindTexture(GL_TEXTURE_2D, mat->diffuseTexture->texture);
-                }
-                if (registry.has<Wireframe>(entity)) {
-                    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                } else {
-                    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                }
-                if (registry.has<Instanced>(entity) && registry.has<Boids>(entity)) {
-                    glDrawElementsInstanced(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr,
-                                            registry.get<Boids>(entity).boids.size());
-                } else {
-                    glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
-                }
-            });
+                    glEnable(GL_DEPTH_TEST);
+                    shader->use();
+                    shader->setMat4("model", transform.toMat4());
+                    vao.bind();
+                    if (registry.has<Wireframe>(entity)) {
+                        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                    } else {
+                        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                    }
+                    if (registry.has<Instanced>(entity) && registry.has<Boids>(entity)) {
+                        glDrawElementsInstanced(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr,
+                                                registry.get<Boids>(entity).boids.size());
+                    } else {
+                        glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
+                    }
+                });
+        glCullFace(GL_BACK);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    {
+        glm::mat4 projView = registry.ctx<Camera>().projection_matrix();
+        renderShaderCache.each([&](RenderShader &shader) {
+            shader.use();
+            shader.setMat4("projectionView", projView);
+            shader.setMat4("lightSpace", lightSpace);
+            shader.setVec3("cameraEye", registry.ctx<Camera>().eye);
+            registry.ctx<Light>().updateUniforms(shader);
+        });
+
+
+        int width, height;
+        glfwGetFramebufferSize(registry.ctx<WindowAbstraction>().window, &width, &height);
+        glEnable(GL_CULL_FACE);
+        glViewport(0, 0, width, height);
+        glm::vec3 clearColor = registry.ctx<Light>().ambient;
+        glClearColor(clearColor[0], clearColor[1], clearColor[2], 1.0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        registry.view<entt::resource_handle<RenderShader>, Transform, VertexAttribute, Renderable>()
+                .each([&](auto entity, auto &shader, auto &transform, auto &vao) {
+                    GLuint index_count = static_cast<GLuint>(
+                            registry.has<TexturedMesh>(entity) ?
+                            registry.get<TexturedMesh>(entity).indices.size() :
+                            (registry.has<ColoredMesh>(entity) ?
+                             registry.get<ColoredMesh>(entity).indices.size() : 0));
+
+                    glEnable(GL_DEPTH_TEST);
+                    shader->use();
+                    shader->setMat4("model", transform.toMat4());
+                    shader->setMat4("normalModel", glm::transpose(glm::inverse(transform.toMat4())));
+                    vao.bind();
+                    if (registry.has<entt::resource_handle<TextureMaterial>>(entity)) {
+                        auto &mat = registry.get<entt::resource_handle<TextureMaterial>>(entity);
+                        mat->updateUniforms(shader);
+                        shader->setInt("diffuseTexture", 0);
+                        shader->setInt("shadowMap", 1);
+                        glActiveTexture(GL_TEXTURE0);
+                        glBindTexture(GL_TEXTURE_2D, mat->diffuseTexture->texture);
+                        glActiveTexture(GL_TEXTURE1);
+                        glBindTexture(GL_TEXTURE_2D, depthMap->texture);
+                    }
+                    if (registry.has<Wireframe>(entity)) {
+                        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                    } else {
+                        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                    }
+                    if (registry.has<Instanced>(entity) && registry.has<Boids>(entity)) {
+                        glDrawElementsInstanced(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr,
+                                                registry.get<Boids>(entity).boids.size());
+                    } else {
+                        glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
+                    }
+                });
+    }
 
     glfwSwapBuffers(registry.ctx<WindowAbstraction>().window);
 }
