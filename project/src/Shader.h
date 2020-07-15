@@ -48,7 +48,17 @@ struct RenderShaderLoader final : entt::resource_loader<RenderShaderLoader, Rend
     static std::shared_ptr<RenderShader> load(const std::filesystem::path &vs, const std::filesystem::path &fs);
 };
 
-using RendershaderCache = entt::resource_cache<RenderShader>;
+using RenderShaderCache = entt::resource_cache<RenderShader>;
+
+struct DepthShader : public Shader {
+
+};
+
+struct DepthShaderLoader final : entt::resource_loader<DepthShaderLoader, DepthShader> {
+    static std::shared_ptr<DepthShader> load(const std::filesystem::path &vs, const std::filesystem::path &fs);
+};
+
+using DepthShaderCache = entt::resource_cache<DepthShader>;
 
 struct ComputeShader : public Shader {
 
