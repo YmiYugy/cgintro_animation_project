@@ -35,9 +35,9 @@ Scene::Scene() {
     auto shipMesh = modelCache.load<ModelLoader>(entt::hashed_string("ship.obj"), ship, 0, *this)->instantiate(
             *this).first[0];
 
-    auto corals = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("coral_2d_formation.obj"),
-                                                         std::filesystem::path("assets/models/coral_2d_formation.obj"));
-    auto coralsMesh = modelCache.load<ModelLoader>(entt::hashed_string("coral_2d_formation.obj"), corals, 0,
+    auto corals = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("coral_3d_formation.obj"),
+                                                         std::filesystem::path("assets/models/coral_3d_formation.obj"));
+    auto coralsMesh = modelCache.load<ModelLoader>(entt::hashed_string("coral_3d_formation.obj"), corals, 0,
                                                    *this)->instantiate(*this).first[0];
 
     auto cube = objectFileCache.load<ObjectFileLoader>(entt::hashed_string("ground.obj"),
