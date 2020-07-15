@@ -211,24 +211,25 @@ void main() {
     vec4 q_rot = get_rotation_between(vec3(1, 0, 0), vel);
 
 
-    float dist = find_dist(pos, vel, 0.0);
+    float dist = find_dist(pos, vel, collision_avoid_force_dst);
     if (dist <= collisions_avoid_dst) {
         float max_dist = 0.0;
         uint max_dist_index = 0;
+        vec3 sampleDir = vec3(1, 0, 0);
 
         for (uint i = 1; i < sample_count; i++) {
-            vec3 sampleDir = rotate(q_rot, samplePoints[i].xyz);
-            float dist2 = find_dist(pos, sampleDir, collisions_avoid_dst);
+            vec3 sampleDir2 = rotate(q_rot, samplePoints[i].xyz);
+            float dist2 = find_dist(pos, sampleDir2, collisions_avoid_dst);
             if (dist2 > max_dist) {
                 max_dist = dist2;
                 max_dist_index = i;
+                sampleDir = sampleDir2;
             }
             if (dist2 > collisions_avoid_dst) {
                 break;
             }
         }
 
-        vec3 sampleDir = rotate(q_rot, samplePoints[max_dist_index].xyz);
         if (dist <= collision_avoid_force_dst) {
             //vel = length(vel) * sampleDir;
             vel += delta * avoid_collision_weight * avoid_collision_weight * steer_towards(sampleDir, vel);
