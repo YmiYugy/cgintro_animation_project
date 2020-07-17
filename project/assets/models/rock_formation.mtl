@@ -10,7 +10,7 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd textures\\rock_texture_sl.png
+map_Kd rock_texture_sl.png
 
 newmtl Material.004
 Ns 323.999994
@@ -21,7 +21,7 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd textures\\rock_texture_sl.png
+map_Kd rock_texture_sl.png
 
 newmtl Material.009
 Ns 323.999994
@@ -32,7 +32,7 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd textures\\rock_texture_sl.png
+map_Kd rock_texture_sl.png
 
 newmtl Material.010
 Ns 323.999994
@@ -43,4 +43,4 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd textures\\rock_texture_sl.png
+map_Kd rock_texture_sl.png
