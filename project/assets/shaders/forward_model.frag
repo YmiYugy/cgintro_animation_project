@@ -47,13 +47,13 @@ float calculate_shadow(vec4 posLightSpace, float bias) {
     float currentDepth = projCoords.z;
     float shadow = 0.0;
     vec2 texSize = 1.0 / textureSize(shadowMap, 0);
-    for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
+    for (int x = -6; x <= 6; x+= 2) {
+        for (int y = -6; y <= 6; y+= 2) {
             float closestDepth = texture(shadowMap, projCoords.xy + texSize * vec2(x, y)).r;
             shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
         }
     }
-    shadow /= 9.0;
+    shadow /= 49;
 
     return shadow;
 }

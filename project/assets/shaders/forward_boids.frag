@@ -47,13 +47,13 @@ float calculate_shadow(vec4 posLightSpace, float bias) {
     float currentDepth = projCoords.z;
     float shadow = 0.0;
     vec2 texSize = 1.0 / textureSize(shadowMap, 0);
-    for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
+    for (int x = -6; x <= 6; x+= 2) {
+        for (int y = -6; y <= 6; y+= 2) {
             float closestDepth = texture(shadowMap, projCoords.xy + texSize * vec2(x, y)).r;
             shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
         }
     }
-    shadow /= 9.0;
+    shadow /= 49;
 
     return shadow;
 }
@@ -72,7 +72,7 @@ void main()
 
     vec3 viewDir = normalize(cameraEye - Position.xyz);
     vec3 halfwayDir = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), 2);
     vec3 specular = light.specular * spec;
 
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);

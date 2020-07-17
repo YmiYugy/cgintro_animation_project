@@ -139,7 +139,7 @@ Scene::Scene() {
     }
 
     {
-        const GLuint shadowMapWidth = 4096, shadowMapHeight = 4096;
+        const GLuint shadowMapWidth = 8192, shadowMapHeight = 8192;
         glGenFramebuffers(1, &depthFBO);
         glBindFramebuffer(GL_FRAMEBUFFER, depthFBO);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
