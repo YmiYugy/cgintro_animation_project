@@ -99,3 +99,9 @@ Quellen:
 ## Interaktivität
 
 `CameraController` implementiert eine einfache first person Steuerung, die mittels G aktiviert wird und durch halten von ALT die Geschwindigkeit erhöht.
+
+## Programarchitektur
+
+Das Projekt hat bis zu dieser Finalen Version 3 rewrites erfahren. Von dem bereitgestellten Framework, über ein eigenes Framework mit ähnlicher Architektur, einem MVVM, bis schließlich zu dem hier verwendetem ECS, dass die `entt` Library verwendet.
+Rückblickend hat sich erwiesen, dass dies weitgehend unnötig war.
+
