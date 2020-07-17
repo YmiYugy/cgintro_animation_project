@@ -1,6 +1,6 @@
-#include "Application.h"
+#include "Scene.h"
 
 int main() {
-    Application::create_app().run();
-    return 0;
+    Scene scene;
+    scene.run();
 }

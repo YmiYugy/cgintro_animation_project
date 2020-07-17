@@ -1,40 +1,37 @@
-//
-// Created by trist on 16/06/2020.
-//
 
 #ifndef UNDERWATER_WORLD_BOIDS_H
 #define UNDERWATER_WORLD_BOIDS_H
 
-#include "Helper.h"
-#include "RenderNode.h"
-#include "Camera.h"
+#include "Prototypes.h"
+#include "Buffer.h"
+
+const GLuint boids_per_thread = 64;
 
 struct Boid {
-    glm::vec4 pos;
-    glm::vec4 dir;
+    glm::vec4 pos{};
+    glm::vec4 dir{};
+
+    Boid(glm::vec3 center, float radius, float speed);
 };
 
-class Boids : public RenderNode {
-public:
-    Boids(GLuint EBO, GLuint program, std::vector<void *> UBOs, const std::vector<VertexInput> &vertexInputs,
-          SceneInfo sceneInfo, SceneInfo samples, GLuint num_vertices, GLuint num_elements, GLuint num_instances);
+struct Boids {
+    std::vector<Boid> boids;
 
-    void render() override;
+    Boids(size_t num_boids, glm::vec3 center, float radius, float speed);
 
-    void updateUBOs(float delta) override;
-
-private:
-    GLuint boids;
-    GLuint boid_count;
-    GLuint compProgram;
-    Camera *camera;
-    glm::mat4 *projection;
-    SceneInfo sceneInfo;
-    SceneInfo samples;
-
-    GLuint debugBuffer;
-    bool even = true;
+    void updateUniforms(ComputeShader shader);
 };
+
+struct BoidBuffers {
+    Buffer boid_buffer1{};
+    Buffer boid_buffer2{};
+
+    void bind(ComputeShader shader, GLuint position1, GLuint position2);
+};
+
+
+
+
 
 
 #endif //UNDERWATER_WORLD_BOIDS_H
