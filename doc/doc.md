@@ -17,6 +17,8 @@ Die Fische verhalten sich nach 3 einfachen Regeln
 
 Für ein besseren visuellen Effekt wurde außerdem ein unsichtbarer Anzugspunkt hinzugefügt.
 
+![](Screenshot%20from%202020-07-17%2015-16-10.png "Schwarmverhalten")
+
 Referenz:  
 [1]: <https://processing.org/examples/flocking.html4>  
 [2]: <https://github.com/SebLague/Boids/blob/master/Assets/Scripts/BoidCompute.compute>  
@@ -31,6 +33,9 @@ Um diese Richtungen zu erzeugen wird eine Kugeloberfläche mit äquidistanten Pu
 Bekanntermaßen lässt sich mittels des Goldenen Schnitts nahezu gleichverteilte Punkte in der Ebene erzeugen: $f(x)=e^{i2\pi\phi \sqrt{x}}$.
 Dies lässt sich auf spärische Koordinaten verallgemeinern und liefert ansatzweise äquidistante Punkte.
 Wird nun eine ungehinderte Richtung gefunden wird bei geringer Distanz dich Richtung in diese angepasst und bei sehr geringer Distanz wird die Richtung direkt auf die ungehinderte Richtung gesetzt.
+
+![25 samples](samples_25.png "25 samples") 
+![100 sampples](samples_100.png "100 samples")
 
 Referenzen:  
 [3]: <https://www.youtube.com/watch?v=bqtqltqcQhw>  
@@ -54,6 +59,8 @@ Referenzen:
 
 Es wurde das in der Vorlesung vorgstellte Shadow Mapping Verfahren verwendent und mittels PCF gefiltert, wobei ein besonders großer Kernel gewählt wurde.
 
+![shadow mapping](Screenshot%20from%202020-07-17%2015-16-55.png "Shadow Mapping")
+
 Referenzen:  
 [8]: <https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping>  
 [9]: Die entsprechenden Folien der Vorlesung  
@@ -63,12 +70,19 @@ Referenzen:
 Der Nebel ist ein Blending mit der Clear Color.
 Die Implementierung ist äquivalent zum altern `glFog`.
 
+![fog](Screenshot%20from%202020-07-17%2015-34-57.png "Nebel")
+
 Referenz:  
 [10]: <https://wiki.delphigl.com/index.php/glFog>
 
 ## Modelle
 
 Die Modelle wurden eigenständig mittels Blender erstellt.
+
+![ship](Screenshot%20from%202020-07-17%2015-14-53.png "Schiff")
+![coralls](Screenshot%20from%202020-07-17%2015-32-17.png "Korallen")
+![ground](Screenshot%20from%202020-07-17%2015-34-10.png "Boden")
+![rocks](Screenshot%20from%202020-07-17%2015-32-47.png "Felsen")
 
 ## Texturen
 
@@ -80,3 +94,8 @@ Quellen:
 [13]: <https://www.textures.com/download/bronzecopper0071/85733?q=scales>  
 [14]: <https://www.textures.com/download/soilbeach0134/106146?q=soil+beach>  
 [15]: <https://www.textures.com/download/rocksharp0092/91841?q=rock&filter=seamless>  
+
+
+## Interaktivität
+
+`CameraController` implementiert eine einfache first person Steuerung, die mittels G aktiviert wird und durch halten von ALT die Geschwindigkeit erhöht.

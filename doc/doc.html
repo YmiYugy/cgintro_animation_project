@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Dokumentation</title>
+        <style>
+</style>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        
+        <script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+        
+    </head>
+    <body class="vscode-light">
+        <h1 id="dokumentation">Dokumentation</h1>
+<h2 id="fische">Fische</h2>
+<p>Das verhalten der Fische wird mittels einer physikalischen Simulation berechnet, die aus 2 Komponenten besteht.</p>
+<h3 id="schwarmverhalten">Schwarmverhalten</h3>
+<p>Die Fische verhalten sich nach 3 einfachen Regeln</p>
+<ol>
+<li>Kohärenz
+<ul>
+<li>Die Fische passen ihre Richtung zum Mittelpunkt aller Fische in ihrer Umgebung an. Dadurch entsteht ein Pulkartiges verhalten</li>
+</ul>
+</li>
+<li>Ausrichtung
+<ul>
+<li>Die Fische gleichen ihre Fortbewegungsrichtung den anderen Fischen in ihrer Umgebung an.</li>
+</ul>
+</li>
+<li>Separation
+<ul>
+<li>In einem deutlich kleineren Umkreis versuchen die Fische Abstand zu halten. Dazu passen sie ihre Richtung zum Durchschnitt der entgegengesetzten Verbindungsvektoren an. Die Stärke dieser Abstoßungskraft verhält sich umgekehrt quadratisch zum Abstand</li>
+</ul>
+</li>
+</ol>
+<p>Für ein besseren visuellen Effekt wurde außerdem ein unsichtbarer Anzugspunkt hinzugefügt.</p>
+<p><img src="file:////home/tristan/development/projects/cpp/cgintro_animation_project/doc/Screenshot%20from%202020-07-17%2015-16-10.png" alt="" title="Schwarmverhalten"></p>
+<p>Referenz:<br>
+[1]: <a href="https://processing.org/examples/flocking.html4">https://processing.org/examples/flocking.html4</a><br>
+[2]: <a href="https://github.com/SebLague/Boids/blob/master/Assets/Scripts/BoidCompute.compute">https://github.com/SebLague/Boids/blob/master/Assets/Scripts/BoidCompute.compute</a></p>
+<h3 id="kollisionsvermeidung">Kollisionsvermeidung</h3>
+<p>Weiterhin vermeiden die Fische die Kollision mit der Umgebung.
+Dazu wird in Bewegungsrichtung ein Strahl in die Szene geschossen und auf Schnitt mit der Szenengeometrie getestet.
+Als Intersektionsalgorithmus wurde der von Möller und Trumbore verwendet.
+Wird ein Schnittpunkt in geringer Distanz gefunden wird in immer größeren Winkeln zur Bewegungsrichtung Strahlen erzeugt, bis eine unversperrte Richtung gefunden wurde.
+Um diese Richtungen zu erzeugen wird eine Kugeloberfläche mit äquidistanten Punkten erzeugt, diese zur Position des Fisches verschoben und die Vektoren vom Mittelpunkt zu den Punkten auf der Oberfläche als Richtungen verwendet.
+Bekanntermaßen lässt sich mittels des Goldenen Schnitts nahezu gleichverteilte Punkte in der Ebene erzeugen: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><msup><mi>e</mi><mrow><mi>i</mi><mn>2</mn><mi>π</mi><mi>ϕ</mi><msqrt><mi>x</mi></msqrt></mrow></msup></mrow><annotation encoding="application/x-tex">f(x)=e^{i2\pi\phi \sqrt{x}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathdefault">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.9271335em;vertical-align:0em;"></span><span class="mord"><span class="mord mathdefault">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9271335em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mord mtight">2</span><span class="mord mathdefault mtight" style="margin-right:0.03588em;">π</span><span class="mord mathdefault mtight">ϕ</span><span class="mord sqrt mtight"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8059050000000001em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mtight" style="padding-left:0.833em;"><span class="mord mathdefault mtight">x</span></span></span><span style="top:-2.765905em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail mtight" style="min-width:0.853em;height:1.08em;"><svg width='400em' height='1.08em' viewBox='0 0 400000 1080' preserveAspectRatio='xMinYMin slice'><path d='M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z'/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.234095em;"><span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span>.
+Dies lässt sich auf spärische Koordinaten verallgemeinern und liefert ansatzweise äquidistante Punkte.
+Wird nun eine ungehinderte Richtung gefunden wird bei geringer Distanz dich Richtung in diese angepasst und bei sehr geringer Distanz wird die Richtung direkt auf die ungehinderte Richtung gesetzt.</p>
+<p><img src="file:////home/tristan/development/projects/cpp/cgintro_animation_project/doc/samples_25.png" alt="25 samples" title="25 samples">
+<img src="file:////home/tristan/development/projects/cpp/cgintro_animation_project/doc/samples_100.png" alt="100 sampples" title="100 samples"></p>
+<p>Referenzen:<br>
+[3]: <a href="https://www.youtube.com/watch?v=bqtqltqcQhw">https://www.youtube.com/watch?v=bqtqltqcQhw</a><br>
+[4]: <a href="https://stackoverflow.com/questions/9600801/evenly-distributing-n-points-on-a-sphere/44164075#44164075">https://stackoverflow.com/questions/9600801/evenly-distributing-n-points-on-a-sphere/44164075#44164075</a><br>
+[5]: <a href="https://www.youtube.com/watch?v=sj8Sg8qnjOg">https://www.youtube.com/watch?v=sj8Sg8qnjOg</a></p>
+<h3 id="technische-umsetzung">Technische Umsetzung</h3>
+<p>Die Simulation ist als Compute Shader implementiert. Die Szenengeometrie, die Position und Richtung der Fische und die vorher erzeugten Punkte auf der Kugel werden mittels SSBOs zur Verfügung gestellt.
+Der Output Positions und Richtungs Buffer der Fische wird anschließend als instanzierter Vertex Buffer genutzt.</p>
+<h2 id="lokale-beleuchtung">Lokale Beleuchtung</h2>
+<p>Für die lokale Beleuchtung wird Blinn-Phong implmentiert.</p>
+<p>Referenzen:<br>
+[6]: <a href="https://learnopengl.com/Advanced-Lighting/Advanced-Lighting">https://learnopengl.com/Advanced-Lighting/Advanced-Lighting</a><br>
+[7]: Die entsprechenden Folien der Vorlesung</p>
+<h2 id="shadow-mapping">Shadow Mapping</h2>
+<p>Es wurde das in der Vorlesung vorgstellte Shadow Mapping Verfahren verwendent und mittels PCF gefiltert, wobei ein besonders großer Kernel gewählt wurde.</p>
+<p><img src="file:////home/tristan/development/projects/cpp/cgintro_animation_project/doc/Screenshot%20from%202020-07-17%2015-16-55.png" alt="shadow mapping" title="Shadow Mapping"></p>
+<p>Referenzen:<br>
+[8]: <a href="https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping">https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping</a><br>
+[9]: Die entsprechenden Folien der Vorlesung</p>
+<h2 id="nebel">Nebel</h2>
+<p>Der Nebel ist ein Blending mit der Clear Color.
+Die Implementierung ist äquivalent zum altern <code>glFog</code>.</p>
+<p><img src="file:////home/tristan/development/projects/cpp/cgintro_animation_project/doc/Screenshot%20from%202020-07-17%2015-34-57.png" alt="fog" title="Nebel"></p>
+<p>Referenz:<br>
+[10]: <a href="https://wiki.delphigl.com/index.php/glFog">https://wiki.delphigl.com/index.php/glFog</a></p>
+<h2 id="modelle">Modelle</h2>
+<p>Die Modelle wurden eigenständig mittels Blender erstellt.</p>
+<p><img src="file:////home/tristan/development/projects/cpp/cgintro_animation_project/doc/Screenshot%20from%202020-07-17%2015-14-53.png" alt="ship" title="Schiff">
+<img src="file:////home/tristan/development/projects/cpp/cgintro_animation_project/doc/Screenshot%20from%202020-07-17%2015-32-17.png" alt="coralls" title="Korallen">
+<img src="file:////home/tristan/development/projects/cpp/cgintro_animation_project/doc/Screenshot%20from%202020-07-17%2015-34-10.png" alt="ground" title="Boden">
+<img src="file:////home/tristan/development/projects/cpp/cgintro_animation_project/doc/Screenshot%20from%202020-07-17%2015-32-47.png" alt="rocks" title="Felsen"></p>
+<h2 id="texturen">Texturen</h2>
+<p>Die Texturen wurden mittels GIMP bearbeitet.</p>
+<p>Quellen:<br>
+[11]: <a href="https://www.textures.com/download/rust0217/128484?q=rust021">https://www.textures.com/download/rust0217/128484?q=rust021</a><br>
+[12]: <a href="https://www.textures.com/download/marblegranite0026/112797?q=marble+granit">https://www.textures.com/download/marblegranite0026/112797?q=marble+granit</a><br>
+[13]: <a href="https://www.textures.com/download/bronzecopper0071/85733?q=scales">https://www.textures.com/download/bronzecopper0071/85733?q=scales</a><br>
+[14]: <a href="https://www.textures.com/download/soilbeach0134/106146?q=soil+beach">https://www.textures.com/download/soilbeach0134/106146?q=soil+beach</a><br>
+[15]: <a href="https://www.textures.com/download/rocksharp0092/91841?q=rock&amp;filter=seamless">https://www.textures.com/download/rocksharp0092/91841?q=rock&amp;filter=seamless</a></p>
+<h2 id="interaktivität">Interaktivität</h2>
+<p><code>CameraController</code> implementiert eine einfache first person Steuerung, die mittels G aktiviert wird und durch halten von ALT die Geschwindigkeit erhöht.</p>
+
+    </body>
+    </html>
